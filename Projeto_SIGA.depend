@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1637417319 source:c:\users\david\onedrive - ipleiria\documents\github\projeto_siga\projeto_siga\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<locale.h>
+	<stdbool.h>
+	<errno.h>
+
