@@ -1,11 +1,11 @@
 /*
     INFO
     Projeto para recriar o sistema SIGA das cantinas das escolas que fazem parte do IPL.
-    Este sistema irá carregar ficheiros csv com a informação de escolas, utilizadores e as transações de cada utilizador.
-    Irá permitir recriar o funcionamento do sistema SIGA como os correspondentes movimentos dos utilizadores nas diferentes instituições
+    Este sistema irï¿½ carregar ficheiros csv com a informaï¿½ï¿½o de escolas, utilizadores e as transaï¿½ï¿½es de cada utilizador.
+    Irï¿½ permitir recriar o funcionamento do sistema SIGA como os correspondentes movimentos dos utilizadores nas diferentes instituiï¿½ï¿½es
 
     OWNER INFO
-    Class: 4515 Curso Técnico Superior Profissional de Programação de Sistemas de informação
+    Class: 4515 Curso Tï¿½cnico Superior Profissional de Programaï¿½ï¿½o de Sistemas de informaï¿½ï¿½o
     Student(s) number: 2211849
     Creator(s): David Machado Monteiro
 */
@@ -17,7 +17,7 @@
 #include <stdbool.h>
 #include <errno.h>
 
-#define *TIPO_UTILIZADOR[] = {"Estudante","Docente","Funcionário"}
+#define *TIPO_UTILIZADOR[] = {"Estudante","Docente","Funcionï¿½rio"}
 
 bool validacaoBinaria(char[]);
 void carregarCSV(char []);
@@ -59,9 +59,9 @@ int main()
     }
 }
 
-// Validação para questões de Sim ou Não
+// Validaï¿½ï¿½o para questï¿½es de Sim ou Nï¿½o
 bool validacaoBinaria(char texto[]) {
-    printf("\nY - Sim\nN - Não\n\n-->");
+    printf("\nY - Sim\nN - Nï¿½o\n\n-->");
     char resposta;
     do {
         //system("cls");
@@ -72,7 +72,7 @@ bool validacaoBinaria(char texto[]) {
     return resposta == 'Y' ? true : false;
 }
 
-// Validação de leitura de char's
+// Validaï¿½ï¿½o de leitura de char's
 char validacaoCharacter(char text[], char valores_validos[]) {
     char resposta;
     do{
@@ -84,9 +84,8 @@ char validacaoCharacter(char text[], char valores_validos[]) {
     return resposta;
 }
 
-// Lee informação dos ficheiros CSV que forem pasados
+// Lee informaï¿½ï¿½o dos ficheiros CSV que forem pasados
 void carregarCSV(char filePath[]) {
-    //if (filePath == "") filePath = "CSV/escolas.csv";
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream) {
         char buffer[1024];
@@ -118,7 +117,7 @@ void carregarCSV(char filePath[]) {
     }
 }
 
-// Devolve a informação de uma string no campo especificado
+// Devolve a informaï¿½ï¿½o de uma string no campo especificado
 const char* getfield(char* line, int num) {
 	const char* tok;
 	for (tok = strtok(line, ";");
@@ -137,15 +136,15 @@ void crearUtilizador(void) {
     char tipo_escola, nome[100], nif[9], *tipo_utilizador;
     system("cls");
     do{
-        tipo_escola = validacaoCharacter("Escolha a sua escola\n2 - Escola Superior de Tecnologia e Gestão(ESTG)\n3 - Escola Superior de Turismo e Tecnologia do Mar(ESTM)"), "23");
+        tipo_escola = validacaoCharacter("Escolha a sua escola\n2 - Escola Superior de Tecnologia e Gestï¿½o(ESTG)\n3 - Escola Superior de Turismo e Tecnologia do Mar(ESTM)"), "23");
         nome = obterString("Insira o seu nome:");
         nif = obterString("Insira o seu NIF:");
         tipo_utilizador =
-    }while(/*Condição utilizador aceitar*/);
+    }while(/*Condiï¿½ï¿½o utilizador aceitar*/);
 }
 
 // Obtem uma string do utilizador
-char []obterString(char text[]) {
+char *obterString(char text[]) {
     char *nome;
     printf(text);
     scanf("%s", &nome);
