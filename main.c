@@ -1,11 +1,11 @@
 /*
     INFO
     Projeto para recriar o sistema SIGA das cantinas das escolas que fazem parte do IPL.
-    Este sistema irï¿½ carregar ficheiros csv com a informaï¿½ï¿½o de escolas, utilizadores e as transaï¿½ï¿½es de cada utilizador.
-    Irï¿½ permitir recriar o funcionamento do sistema SIGA como os correspondentes movimentos dos utilizadores nas diferentes instituiï¿½ï¿½es
+    Este sistema irá carregar ficheiros csv com a informação de escolas, utilizadores e as transações de cada utilizador.
+    Irá permitir recriar o funcionamento do sistema SIGA como os correspondentes movimentos dos utilizadores nas diferentes instituições
 
     OWNER INFO
-    Class: 4515 Curso Tï¿½cnico Superior Profissional de Programaï¿½ï¿½o de Sistemas de informaï¿½ï¿½o
+    Class: 4515 Curso Técnico Superior Profissional de Programação de Sistemas de informação
     Student(s) number: 2211849
     Creator(s): David Machado Monteiro
 */
@@ -20,7 +20,7 @@
 #define TIPO_UTILIZADOR (char*[3]) {"Estudante","Docente","Funcionário"}
 
 
-typedef struct
+typedef struct //Estrutura Utilizador
 {
     int ID;
     int ID_Escola;
@@ -31,25 +31,16 @@ typedef struct
     float Valor_Conta;
 } Utilizador;
 
-Utilizador instanciarUtilizador(void)
+char *ImprimeUtilizador(Utilizador util, bool conseguirString)
 {
-    Utilizador util;
-    util.ID = 0;
-    util.ID_Escola = 0;
-    util.Nome = "";
-    util.NIF = 0;
-    util.Tipo = "";
-    util.Email = "";
-    util.Valor_Conta = 0.0;
-}
-
-void ImprimeUtilizador(Utilizador util)
-{
-  printf("Id.%d Id Escola.%d Nome: %s NIF:%d Tipo Utilizador:%s Email:%s Valor na Conta: %f",
+  char informacao[1024];
+  snprintf(informacao, sizeof(informacao), "Id.%d Id Escola.%d Nome: %s NIF:%d Tipo Utilizador:%s Email:%s Valor na Conta: %f",
          util.ID,util.ID_Escola,util.Nome,util.NIF,util.Tipo,util.Email,util.Valor_Conta);
+  if(!conseguirString)printf(informacao);
+  else return informacao;
 }
 
-typedef struct
+typedef struct //Estrutura Escola
 {
     int ID;
     char *Nome;
@@ -57,25 +48,45 @@ typedef struct
     char *Campus;
     char *Localidade;
 } Escola;
-typedef struct
+
+void ImprimeEscola(Escola escola)
+{
+  printf("Id.%d Nome:%s Abreviatura:%s Campus:%s Localidade:%s",
+         escola.ID,escola.Nome,escola.Abreviatura,escola.Campus,escola.Localidade);
+}
+
+typedef struct //Estrutura Transação
 {
     int ID;
     char ID_Utilizador;
     char *Tipo;
-    float valor;
+    float Valor;
     char *Data;
     char *Hora;
 } Transacao;
 
-bool validacaoBinaria(char*);
+void ImprimeTransacao(Transacao transacao)
+{
+  printf("Id.%d Id Util.%d Tipo:%s Valor:%f Data:%s Hora:%s",
+         transacao.ID,transacao.ID_Utilizador,transacao.Tipo,transacao.Valor,transacao.Data,transacao.Hora);
+}
+
+bool validacaoBinaria(char[]);
 char validacaoCharacter(char *, char *);
 void esperarEnter(void);
-void carregarCSV(char*);
-Utilizador *carregarCSVUtilizadores(char*);
 const char* getfield(char*, int);
+void carregarCSV(char*);
+void importCSVUtilizadores(char*);
+void guardarDadosUtilizador(char*, Utilizador*, int);
+void importCSVEscolas(char*);
+void guardarDadosEscola(char*, Escola*, int);
+void importCSVTransacoes(char*);
+void guardarDadosTransacao(char*, Transacao*, int);
 Utilizador crearUtilizador(void);
-char *obterString(char*);
-char *escolherTipoUtilizador(void);
+const char* obterString(char*);
+float obterNumero(char*);
+int charParaInt(char);
+const char* escolherTipoUtilizador(void);
 
 int main()
 {
@@ -88,54 +99,53 @@ int main()
     char caminhoUtilizadores[] = "CSV/utilizadores.csv";
     char caminhoMovimentos[] = "CSV/movimentos.csv";
 
-    // Ask the user load CSV files
-    if(validacaoBinaria("Quere ver os dados apartir de ficheiros csv?"))
-    {
+    do{
         system("cls");
-        printf("Carregando Ficheiros CSV\n\n");
-        printf("Carregando Ficheiro %s\n\n", caminhoEscolas);
-        carregarCSV(caminhoEscolas);
-        printf("Finish reading file %s\n\n\nCarregando Ficheiro %s\n\n",caminhoEscolas,caminhoUtilizadores);
-        carregarCSV(caminhoUtilizadores);
-        printf("Finish reading file %s\n\n\nCarregando Ficheiro %s\n\n",caminhoUtilizadores,caminhoMovimentos);
-        carregarCSV(caminhoMovimentos);
-        printf("Finish reading file %s\n\n\n",caminhoMovimentos);
-        esperarEnter();
-    }
-
-    if(validacaoBinaria("Quere importar os dados apartir de ficheiros csv?"))
-    {
-        system("cls");
-        printf("Carregando Ficheiros CSV\n\n");
-        printf("Carregando Ficheiro %s\n\n", caminhoUtilizadores);
-        carregarCSVUtilizadores(caminhoUtilizadores);
-        printf("Finish reading file %s", caminhoUtilizadores);
-        /*printf("Finish reading file %s\n\n\nCarregando Ficheiro %s\n\n",caminhoEscolas,caminhoUtilizadores);
-        carregarCSV(caminhoUtilizadores);
-        printf("Finish reading file %s\n\n\nCarregando Ficheiro %s\n\n",caminhoUtilizadores,caminhoMovimentos);
-        carregarCSV(caminhoMovimentos);
-        printf("Finish reading file %s\n\n\n",caminhoMovimentos);*/
-        esperarEnter();
-    }
-
-    if(validacaoBinaria("Quere inserir dados manualmente?"))
-    {
-        system("cls");
-        resposta = validacaoCharacter("Escolha o tipo de da dados que quere inserir.\nU - Utilizador\nE - Escola\nX - Cancelar", "UEX");
-        switch(resposta)
-        {
-        case 'U':
-            crearUtilizador();
-            break;
-        case 'E':
-            //TODO Crear Escola
-            break;
+        resposta = validacaoCharacter("1 - Carregar Ficheiros CSV\n2 - Importar CSV Files\n3 - Inserir Dados\nX - Sair", "123X");
+        switch(resposta){
+            case '1':
+                system("cls");
+                printf("Carregando Ficheiro %s\n\n", caminhoEscolas);
+                carregarCSV(caminhoEscolas);
+                printf("Finish reading file %s\n\n\nCarregando Ficheiro %s\n\n",caminhoEscolas,caminhoUtilizadores);
+                carregarCSV(caminhoUtilizadores);
+                printf("Finish reading file %s\n\n\nCarregando Ficheiro %s\n\n",caminhoUtilizadores,caminhoMovimentos);
+                carregarCSV(caminhoMovimentos);
+                printf("Finish reading file %s\n\n\n",caminhoMovimentos);
+                esperarEnter();
+                break;
+            case '2':
+                system("cls");
+                printf("Carregando Ficheiro %s\n\n", caminhoUtilizadores);
+                importCSVUtilizadores(caminhoUtilizadores);
+                printf("Finish reading file %s\n\n", caminhoUtilizadores);
+                printf("Carregando Ficheiro %s\n\n", caminhoEscolas);
+                importCSVEscolas(caminhoEscolas);
+                printf("Finish reading file %s\n\n",caminhoEscolas);
+                printf("Carregando Ficheiro %s\n\n",caminhoMovimentos);
+                importCSVTransacoes(caminhoMovimentos);
+                printf("Finish reading file %s\n\n\n",caminhoMovimentos);
+                esperarEnter();
+                break;
+            case '3':
+                system("cls");
+                resposta = validacaoCharacter("Escolha o tipo de da dados que quere inserir.\nU - Utilizador\nE - Escola\nX - Cancelar", "UEX");
+                switch(resposta)
+                {
+                case 'U':
+                    crearUtilizador();
+                    break;
+                case 'E':
+                    //TODO Crear Escola
+                    break;
+                }
+                break;
         }
-    }
+    }while(resposta != 'X');
 }
 
 // Validação para questões de Sim ou Não
-bool validacaoBinaria(char *texto)
+bool validacaoBinaria(char texto[])
 {
     char resposta;
     do
@@ -143,6 +153,7 @@ bool validacaoBinaria(char *texto)
         //system("cls");
         printf("%s", texto);
         printf("\nY - Sim\nN - Não\n\n-->");
+        fflush(stdin);
         scanf(" %c", &resposta);
         resposta = toupper(resposta);
     }
@@ -159,6 +170,7 @@ char validacaoCharacter(char *texto, char *valores_validos)
         system("cls");
         printf(texto);
         printf("\n-->");
+        fflush(stdin);
         scanf(" %c", &resposta);
         resposta = toupper(resposta);
     }
@@ -190,7 +202,7 @@ void carregarCSV(char* filePath)
             row++;
 
             //Optional to ignore the header tables
-            //if (row == 1) continue;
+            if (row == 1) continue;
             // Splitting the data
             char* value = strtok(buffer, ";");
             while (value)
@@ -211,32 +223,33 @@ void carregarCSV(char* filePath)
     }
 }
 
-Utilizador *carregarCSVUtilizadores(char* filePath)
+// Importa os dados dos Utilizadores para o programa
+void importCSVUtilizadores(char* filePath)
 {
-    Utilizador utilizadores[200];
+    Utilizador utilizador[200];
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
         char buffer[1024];
         int row = 0;
-
-        while (fgets(buffer, 1024, fileStream))
+        while (fgets(buffer, sizeof(buffer), fileStream))
         {
             int column = 0;
             row++;
             //Optional to ignore the header tables
             if (row == 1) continue;
             int index = row - 2;
-            utilizadores[index] = instanciarUtilizador();
             // Splitting the data
             char* value = strtok(buffer, ";");
             while (value)
             {
-                utilizadores[index] = guardarDadosUtilizador(value, utilizadores[index],column);
+                //TODO Check why it brakes with email
+                printf("%s\t", value);
+                guardarDadosUtilizador(value, &utilizador[index],column);
                 value = strtok(NULL, ";");
                 column++;
             }
-            ImprimeUtilizador(utilizadores[index]);
+            ImprimeUtilizador(utilizador[index],false);
             printf("\n");
         }
         // Close the file
@@ -249,33 +262,157 @@ Utilizador *carregarCSVUtilizadores(char* filePath)
     }
 }
 
-// Insire os dados do novo utilizador no correspondente variavel
-Utilizador guardarDadosUtilizador(char* novo_dado, Utilizador dados_antigos, int coluna)
+// Importa os dados das Escolas para o programa
+void importCSVEscolas(char* filePath)
+{
+    Escola escolas[5];
+    FILE* fileStream = fopen(filePath, "r");
+    if (fileStream)
+    {
+        char buffer[1024];
+        int row = 0;
+        while (fgets(buffer, sizeof(buffer), fileStream))
+        {
+            int column = 0;
+            row++;
+            //Optional to ignore the header tables
+            if (row == 1) continue;
+            int index = row - 2;
+            // Splitting the data
+            char* value = strtok(buffer, ";");
+            while (value)
+            {
+                //Check with it brakes reading Abreviatura
+                printf("%s\t", value);
+                guardarDadosEscola(value, &escolas[index],column);
+                value = strtok(NULL, ";");
+                column++;
+            }
+            ImprimeEscola(escolas[index]);
+            printf("\n");
+        }
+        // Close the file
+        fclose(fileStream);
+    }
+    else
+    {
+        printf("Error opening file: %s\n", filePath);
+        perror("Error");
+    }
+}
+
+// Importa os dados das Transações para o programa
+void importCSVTransacoes(char* filePath)
+{
+    Transacao transacoes[5000];
+    FILE* fileStream = fopen(filePath, "r");
+    if (fileStream)
+    {
+        char buffer[1024];
+        int row = 0;
+        while (fgets(buffer, sizeof(buffer), fileStream))
+        {
+            int column = 0;
+            row++;
+            //Optional to ignore the header tables
+            if (row == 1) continue;
+            int index = row - 2;
+            // Splitting the data
+            char* value = strtok(buffer, ";");
+            while (value)
+            {
+                printf("%s\t", value);
+                guardarDadosTransacao(value, &transacoes[index],column);
+                value = strtok(NULL, ";");
+                column++;
+            }
+            ImprimeTransacao(transacoes[index]);
+            printf("\n");
+        }
+        // Close the file
+        fclose(fileStream);
+    }
+    else
+    {
+        printf("Error opening file: %s\n", filePath);
+        perror("Error");
+    }
+}
+
+// Insire os dados do novo utilizador
+void guardarDadosUtilizador(char* novo_dado, Utilizador *dados_antigos, int coluna)
+{
+    switch(coluna){
+        case 0: //Save ID Utilizador
+            dados_antigos->ID = atoi(novo_dado);
+            break;
+        case 1: //Save ID Escola
+            dados_antigos->ID_Escola = atoi(novo_dado);
+            break;
+        case 2: //Save Nome Utilizador
+            strcpy(dados_antigos->Nome,novo_dado);
+            break;
+        case 3: //Save NIF
+            dados_antigos->NIF = atoi(novo_dado);
+            break;
+        case 4: //Save Tipo de Utilizador
+            strcpy(dados_antigos->Tipo,novo_dado);
+            break;
+        case 5: //Save Email
+            strcpy(dados_antigos->Email,novo_dado);
+            break;
+        case 6: //Save Valor na conta
+            dados_antigos->Valor_Conta = strtof(novo_dado,NULL);
+            break;
+    }
+}
+
+// Insire os dados da nova escola
+void guardarDadosEscola(char* novo_dado, Escola *dados_antigos, int coluna)
+{
+    switch(coluna){
+        case 0: //Save Id
+            dados_antigos->ID = atoi(novo_dado);
+            break;
+        case 1: //Save Nome Escola
+            strcpy(dados_antigos->Nome,novo_dado);
+            break;
+        case 2: //Save Abreviatura Escola
+            strcpy(dados_antigos->Abreviatura,novo_dado);
+            break;
+        case 3: //Save Campus
+            strcpy(dados_antigos->Campus,novo_dado);
+            break;
+        case 4: //Save Localidade
+            strcpy(dados_antigos->Localidade,novo_dado);
+            break;
+    }
+}
+
+// Insire os dados da nova escola
+void guardarDadosTransacao(char* novo_dado, Transacao *dados_antigos, int coluna)
 {
     switch(coluna){
         case 0:
-            dados_antigos.ID = (int) novo_dado;
+            //Save ID Transação
+            dados_antigos->ID = atoi(novo_dado);
             break;
-        case 1:
-            dados_antigos.ID_Escola = (int) novo_dado;
+        case 1: //Save ID Utilizador
+            dados_antigos->ID_Utilizador = atoi(novo_dado);
             break;
-        case 2:
-            strcpy(dados_antigos.Nome,novo_dado);
+        case 2: //Save Tipo de Movimento
+            strcpy(dados_antigos->Tipo,novo_dado);
             break;
-        case 3:
-            dados_antigos.NIF = (int) novo_dado;
+        case 3: //Save o valor do movimento
+            dados_antigos->Valor = strtof(novo_dado,NULL);
             break;
-        case 4:
-            strcpy(dados_antigos.Tipo,novo_dado);
+        case 4: //Save Data do movimento
+            strcpy(dados_antigos->Data,novo_dado);
             break;
-        case 5:
-            strcpy(dados_antigos.Email,novo_dado);
-            break;
-        case 6:
-            dados_antigos.Valor_Conta = (float) novo_dado;
+        case 5: //Save Hora do movimento
+            strcpy(dados_antigos->Hora,novo_dado);
             break;
     }
-    return dados_antigos;
 }
 
 // Devolve a informação de uma string no campo especificado
@@ -295,32 +432,56 @@ Utilizador crearUtilizador(void)
 {
     //TODO
     Utilizador novo_utilizador;
+    char texto_verificacao[1024];
     system("cls");
     do
     {
-        novo_utilizador.ID_Escola = validacaoCharacter("Escolha a sua escola\n1 - \n2 - Escola Superior de Tecnologia e Gestão(ESTG)\n3 - Escola Superior de Turismo e Tecnologia do Mar(ESTM)", "23");
-        novo_utilizador.Nome = obterString("Insira o seu nome:");
-        novo_utilizador.NIF= obterString("Insira o seu NIF:");
+        novo_utilizador.ID_Escola = charParaInt(validacaoCharacter("Escolha a sua escola\n2 - Escola Superior de Tecnologia e Gestão(ESTG)\n3 - Escola Superior de Turismo e Tecnologia do Mar(ESTM)", "23"));
+        strcpy(novo_utilizador.Nome,obterString("Insira o seu nome:"));//Check how to storage strings in struct
+        printf("Show Name: %s",novo_utilizador.Nome);
+        esperarEnter();
+        novo_utilizador.NIF = (int) obterNumero("Insira o seu NIF:");
         novo_utilizador.Tipo = escolherTipoUtilizador();
         novo_utilizador.Email = obterString("Insira o seu Email:");
-        novo_utilizador.Valor_Conta = (float) obterString("Insira o seu valor inicial:");
-    }while(!validacaoBinaria("Tem a sarteça que quere inserir este dados?\n" + ImprimeUtilizador(novo_utilizador)));
+        novo_utilizador.Valor_Conta = obterNumero("Insira o seu valor inicial:");
+        printf(ImprimeUtilizador(novo_utilizador,true));
+        system("cls");
+        //TODO Check why ImprimeUtilizador retorna null
+        snprintf(texto_verificacao,sizeof(texto_verificacao),"Tem a sarteça que quere inserir este dados?\n%s\n",ImprimeUtilizador(novo_utilizador,true));
+    }while(!validacaoBinaria(texto_verificacao));
 }
 
 // Obtem uma string do utilizador
-char *obterString(char* text)
+const char * obterString(char* text)
 {
-    char *nome;
+    char data[255];
+    system("cls");
     printf(text);
-    scanf("%s", &nome);
-    return nome;
+    fflush(stdin);
+    fgets(data, sizeof(data), stdin);
+    return data;
+}
+
+float obterNumero(char* text)
+{
+    float valor;
+    system("cls");
+    printf(text);
+    scanf(" %f", &valor);
+    return valor;
+}
+
+//Conversão de números em char para Int
+int charParaInt(char input) {
+    int output = 0;
+	output = input - '0';
+	return output;
 }
 
 // Pete ao utilizador insira un tipo de utilizador
-char *escolherTipoUtilizador(void)
+const char* escolherTipoUtilizador(void)
 {
-    char input;
-    char texto[1024] = "Escolha o tipo de utilizador\n1 - Estudante\n2 - Docente\n3 - Funcionária\n\n-->", *valoresValidos = "123";
+    char *texto = "Escolha o tipo de utilizador\n1 - Estudante\n2 - Docente\n3 - Funcionária", *valoresValidos = "123";
 
     // TODO Check how to make it dynamic
     /*system("cls");
@@ -333,4 +494,3 @@ char *escolherTipoUtilizador(void)
     return TIPO_UTILIZADOR[(int) validacaoCharacter(texto, valoresValidos)];
 }
 
-//TODO guardarDadosCSV()
