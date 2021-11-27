@@ -1,11 +1,11 @@
 /*
     INFO
     Projeto para recriar o sistema SIGA das cantinas das escolas que fazem parte do IPL.
-    Este sistema irá carregar ficheiros csv com a informação de escolas, utilizadores e as transações de cada utilizador.
-    Irá permitir recriar o funcionamento do sistema SIGA como os correspondentes movimentos dos utilizadores nas diferentes instituições
+    Este sistema irï¿½ carregar ficheiros csv com a informaï¿½ï¿½o de escolas, utilizadores e as transaï¿½ï¿½es de cada utilizador.
+    Irï¿½ permitir recriar o funcionamento do sistema SIGA como os correspondentes movimentos dos utilizadores nas diferentes instituiï¿½ï¿½es
 
     OWNER INFO
-    Class: 4515 Curso Técnico Superior Profissional de Programação de Sistemas de informação
+    Class: 4515 Curso Tï¿½cnico Superior Profissional de Programaï¿½ï¿½o de Sistemas de informaï¿½ï¿½o
     Student(s) number: 2211849
     Creator(s): David Machado Monteiro
 */
@@ -18,6 +18,7 @@
 #include <errno.h>
 
 #define TIPO_UTILIZADOR (char*[3]) {"Estudante","Docente","Funcionário"}
+
 
 typedef struct
 {
@@ -165,6 +166,7 @@ char validacaoCharacter(char *texto, char *valores_validos)
     return resposta;
 }
 
+// Para o programa ate o utilizador insira enter
 void esperarEnter(void)
 {
     fflush(stdin);
@@ -247,6 +249,7 @@ Utilizador *carregarCSVUtilizadores(char* filePath)
     }
 }
 
+// Insire os dados do novo utilizador no correspondente variavel
 Utilizador guardarDadosUtilizador(char* novo_dado, Utilizador dados_antigos, int coluna)
 {
     switch(coluna){
