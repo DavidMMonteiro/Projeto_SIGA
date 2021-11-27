@@ -437,7 +437,7 @@ Utilizador crearUtilizador(void)
     do
     {
         novo_utilizador.ID_Escola = charParaInt(validacaoCharacter("Escolha a sua escola\n2 - Escola Superior de Tecnologia e Gestão(ESTG)\n3 - Escola Superior de Turismo e Tecnologia do Mar(ESTM)", "23"));
-        strcpy(novo_utilizador.Nome,obterString("Insira o seu nome:"));//Check how to storage strings in struct
+        strcpy(novo_utilizador.Nome,obterString("Insira o seu nome:"));//TODO Check how to storage strings in struct
         printf("Show Name: %s",novo_utilizador.Nome);
         esperarEnter();
         novo_utilizador.NIF = (int) obterNumero("Insira o seu NIF:");
@@ -462,6 +462,7 @@ const char * obterString(char* text)
     return data;
 }
 
+// Obtem ym valor numérico
 float obterNumero(char* text)
 {
     float valor;
