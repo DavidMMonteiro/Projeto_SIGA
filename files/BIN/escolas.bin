@@ -1,3 +1,6 @@
 ID;Nome;Abreviatura;Campus;Localidade
+1;Escola Superior de Educação e Ciências Sociais;ESECS;Campus 1;Leiria
 2;Escola Superior de Tecnologia e Gestão;ESTG;Campus 2;Leiria
-3;Escola Superior de Turismo e Tecnologia do Mar;ESTM;Campus 4;Peniche
+3;Escola Superior de Saúde;ESS;Campus 2;Leiria
+4;Escola Superior de Artes e Design;ESAD;Campus 3;Caldas da Rainha 
+5;Escola Superior de Turismo e Tecnologia do Mar;ESTM;Campus 4;Peniche
