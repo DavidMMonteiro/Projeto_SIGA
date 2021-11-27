@@ -95,9 +95,9 @@ int main()
 
     // Variaveis
     char resposta;
-    char caminhoEscolas[] = "CSV/escolas.csv";
-    char caminhoUtilizadores[] = "CSV/utilizadores.csv";
-    char caminhoMovimentos[] = "CSV/movimentos.csv";
+    char caminhoEscolas[] = "files/CSV/escolas.csv";
+    char caminhoUtilizadores[] = "files/CSV/utilizadores.csv";
+    char caminhoMovimentos[] = "files/CSV/movimentos.csv";
 
     do{
         system("cls");
