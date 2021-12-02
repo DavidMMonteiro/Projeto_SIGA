@@ -24,10 +24,10 @@ typedef struct //Estrutura Utilizador
 {
     int ID;
     int ID_Escola;
-    char *Nome;
+    char Nome[1024];
     int NIF;
-    char *Tipo;
-    char *Email;
+    char Tipo[1024];
+    char Email[1024];
     float Valor_Conta;
 } Utilizador;
 
@@ -43,10 +43,10 @@ char *ImprimeUtilizador(Utilizador util, bool conseguirString)
 typedef struct //Estrutura Escola
 {
     int ID;
-    char *Nome;
-    char *Abreviatura;
-    char *Campus;
-    char *Localidade;
+    char Nome[1024];
+    char Abreviatura[5];
+    char Campus[1024];
+    char Localidade[1024];
 } Escola;
 
 void ImprimeEscola(Escola escola)
@@ -59,10 +59,10 @@ typedef struct //Estrutura Transação
 {
     int ID;
     char ID_Utilizador;
-    char *Tipo;
+    char Tipo[1024];
     float Valor;
-    char *Data;
-    char *Hora;
+    char Data[11];
+    char Hora[10];
 } Transacao;
 
 void ImprimeTransacao(Transacao transacao)
@@ -72,18 +72,18 @@ void ImprimeTransacao(Transacao transacao)
 }
 
 bool validacaoBinaria(char[]);
-char validacaoCharacter(char *, char *);
+char validacaoCharacter(char [], char []);
 void esperarEnter(void);
 const char* getfield(char*, int);
-void carregarCSV(char*);
-void importCSVUtilizadores(char*);
-void guardarDadosUtilizador(char*, Utilizador*, int);
+void carregarCSV(char[]);
+void importCSVUtilizadores(char[]);
+void guardarDadosUtilizador(char[], Utilizador*, int);
 void importCSVEscolas(char*);
-void guardarDadosEscola(char*, Escola*, int);
+void guardarDadosEscola(char[], Escola*, int);
 void importCSVTransacoes(char*);
-void guardarDadosTransacao(char*, Transacao*, int);
+void guardarDadosTransacao(char [], Transacao*, int);
 Utilizador crearUtilizador(void);
-const char* obterString(char*);
+const char *obterString(char[]);
 float obterNumero(char*);
 int charParaInt(char);
 const char* escolherTipoUtilizador(void);
@@ -95,9 +95,9 @@ int main()
 
     // Variaveis
     char resposta;
-    char caminhoEscolas[] = "files/BIN/escolas.bin";//"files/CSV/escolas.csv";
-    char caminhoUtilizadores[] = "files/BIN/utilizadores.bin";//"files/CSV/utilizadores.csv";
-    char caminhoMovimentos[] = "files/BIN/movimentos.bin";//"files/CSV/movimentos.csv";
+    char caminhoEscolas[] = /*"files/BIN/escolas.bin";*/"files/CSV/escolas.csv";
+    char caminhoUtilizadores[] = /*"files/BIN/utilizadores.bin";*/"files/CSV/utilizadores.csv";
+    char caminhoMovimentos[] = /*"files/BIN/movimentos.bin";*/"files/CSV/movimentos.csv";
 
     do{
         system("cls");
@@ -162,7 +162,7 @@ bool validacaoBinaria(char texto[])
 }
 
 // Validação de leitura de char's
-char validacaoCharacter(char *texto, char *valores_validos)
+char validacaoCharacter(char texto[], char valores_validos[])
 {
     char resposta;
     do
@@ -188,7 +188,7 @@ void esperarEnter(void)
 }
 
 // Lee informação dos ficheiros CSV que forem pasados
-void carregarCSV(char* filePath)
+void carregarCSV(char filePath[])
 {
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
@@ -224,18 +224,20 @@ void carregarCSV(char* filePath)
 }
 
 // Importa os dados dos Utilizadores para o programa
-void importCSVUtilizadores(char* filePath)
+void importCSVUtilizadores(char filePath[])
 {
     Utilizador utilizador[200];
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
         char buffer[1024];
-        int row = 0;
-        while (fgets(buffer, sizeof(buffer), fileStream))
+        int row = 0, column = 0;
+
+        while (fgets(buffer, 1024, fileStream))
         {
-            int column = 0;
+            column = 0;
             row++;
+
             //Optional to ignore the header tables
             if (row == 1) continue;
             int index = row - 2;
@@ -243,8 +245,6 @@ void importCSVUtilizadores(char* filePath)
             char* value = strtok(buffer, ";");
             while (value)
             {
-                //TODO Check why it brakes with email
-                printf("%s\t", value);
                 guardarDadosUtilizador(value, &utilizador[index],column);
                 value = strtok(NULL, ";");
                 column++;
@@ -263,7 +263,7 @@ void importCSVUtilizadores(char* filePath)
 }
 
 // Importa os dados das Escolas para o programa
-void importCSVEscolas(char* filePath)
+void importCSVEscolas(char filePath[])
 {
     Escola escolas[5];
     FILE* fileStream = fopen(filePath, "r");
@@ -302,7 +302,7 @@ void importCSVEscolas(char* filePath)
 }
 
 // Importa os dados das Transações para o programa
-void importCSVTransacoes(char* filePath)
+void importCSVTransacoes(char filePath[])
 {
     Transacao transacoes[5000];
     FILE* fileStream = fopen(filePath, "r");
@@ -340,7 +340,7 @@ void importCSVTransacoes(char* filePath)
 }
 
 // Insire os dados do novo utilizador
-void guardarDadosUtilizador(char* novo_dado, Utilizador *dados_antigos, int coluna)
+void guardarDadosUtilizador(char novo_dado[], Utilizador *dados_antigos, int coluna)
 {
     switch(coluna){
         case 0: //Save ID Utilizador
@@ -368,7 +368,7 @@ void guardarDadosUtilizador(char* novo_dado, Utilizador *dados_antigos, int colu
 }
 
 // Insire os dados da nova escola
-void guardarDadosEscola(char* novo_dado, Escola *dados_antigos, int coluna)
+void guardarDadosEscola(char novo_dado[], Escola *dados_antigos, int coluna)
 {
     switch(coluna){
         case 0: //Save Id
@@ -390,7 +390,7 @@ void guardarDadosEscola(char* novo_dado, Escola *dados_antigos, int coluna)
 }
 
 // Insire os dados da nova escola
-void guardarDadosTransacao(char* novo_dado, Transacao *dados_antigos, int coluna)
+void guardarDadosTransacao(char novo_dado[], Transacao *dados_antigos, int coluna)
 {
     switch(coluna){
         case 0:
@@ -441,10 +441,10 @@ Utilizador crearUtilizador(void)
         printf("Show Name: %s",novo_utilizador.Nome);
         esperarEnter();
         novo_utilizador.NIF = (int) obterNumero("Insira o seu NIF:");
-        novo_utilizador.Tipo = escolherTipoUtilizador();
-        novo_utilizador.Email = obterString("Insira o seu Email:");
+        strcpy(novo_utilizador.Tipo, escolherTipoUtilizador());
+        strcpy(novo_utilizador.Email, obterString("Insira o seu Email:"));
         novo_utilizador.Valor_Conta = obterNumero("Insira o seu valor inicial:");
-        printf(ImprimeUtilizador(novo_utilizador,true));
+        //printf(ImprimeUtilizador(novo_utilizador,true));
         system("cls");
         //TODO Check why ImprimeUtilizador retorna null
         snprintf(texto_verificacao,sizeof(texto_verificacao),"Tem a sarteça que quere inserir este dados?\n%s\n",ImprimeUtilizador(novo_utilizador,true));
@@ -452,7 +452,7 @@ Utilizador crearUtilizador(void)
 }
 
 // Obtem uma string do utilizador
-const char * obterString(char* text)
+const char *obterString(char text[])
 {
     char data[255];
     system("cls");
@@ -463,7 +463,7 @@ const char * obterString(char* text)
 }
 
 // Obtem ym valor numérico
-float obterNumero(char* text)
+float obterNumero(char text[])
 {
     float valor;
     system("cls");
@@ -480,9 +480,9 @@ int charParaInt(char input) {
 }
 
 // Pete ao utilizador insira un tipo de utilizador
-const char* escolherTipoUtilizador(void)
+const char *escolherTipoUtilizador(void)
 {
-    char *texto = "Escolha o tipo de utilizador\n1 - Estudante\n2 - Docente\n3 - Funcionária", *valoresValidos = "123";
+    char texto[] = "Escolha o tipo de utilizador\n1 - Estudante\n2 - Docente\n3 - Funcionária", valoresValidos[] = "123";
 
     // TODO Check how to make it dynamic
     /*system("cls");
@@ -492,6 +492,6 @@ const char* escolherTipoUtilizador(void)
         strcat(valoresValidos, index + 1);
     }
     strcat(texto,printf("\n\n-->"));*/
-    return TIPO_UTILIZADOR[(int) validacaoCharacter(texto, valoresValidos)];
+    return TIPO_UTILIZADOR[validacaoCharacter(texto, valoresValidos) - '0' - 1];
 }
 
