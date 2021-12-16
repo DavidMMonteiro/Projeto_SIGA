@@ -16,72 +16,11 @@
 #include <locale.h>
 #include <stdbool.h>
 #include <errno.h>
+#include "utilizador.c"
+#include "escola.c"
+#include "transacao.c"
 
 #define TIPO_UTILIZADOR (char*[3]) {"Estudante","Docente","Funcion�rio"}
-
-
-typedef struct //Estrutura Utilizador
-{
-    int ID;
-    int ID_Escola;
-    char Nome[1024];
-    int NIF;
-    char Tipo[1024];
-    char Email[1024];
-    float Valor_Conta;
-} Utilizador;
-
-char *ImprimeUtilizador(Utilizador util, bool conseguirString)
-{
-    char informacao[1024];
-    
-    snprintf(informacao, sizeof(informacao), "Id.%d \nId Escola.%d \nNome: %s \nNIF:%d \nTipo Utilizador:%s \nEmail:%s \nValor na Conta: %f",
-         util.ID,util.ID_Escola,util.Nome,util.NIF,util.Tipo,util.Email,util.Valor_Conta);
-    
-    if(!conseguirString)printf(informacao);
-    else return *informacao;
-}
-
-typedef struct //Estrutura Escola
-{
-    int ID;
-    char Nome[1024];
-    char Abreviatura[5];
-    char Campus[1024];
-    char Localidade[1024];
-} Escola;
-
-char *ImprimeEscola(Escola escola, bool conseguirString)
-{
-    char informacao[1024];
-
-    snprintf(informacao, sizeof(informacao), "Id.%d \nNome: %s \nAbreviatura: %s \nCampus: %s \nLocalidade: %s",
-         escola.ID,escola.Nome,escola.Abreviatura,escola.Campus,escola.Localidade);
-
-    if(!conseguirString)printf(informacao);
-    else return *informacao;
-}
-
-typedef struct //Estrutura Transa��o
-{
-    int ID;
-    int ID_Utilizador;
-    char Tipo[1024];
-    float Valor;
-    char Data[11];
-    char Hora[10];
-} Transacao;
-
-char *ImprimeTransacao(Transacao transacao, bool conseguirString)
-{
-    char informacao[1024];
-
-    snprintf(informacao, sizeof(informacao), "Id.%d \nId Util.%d \nTipo: %s \nValor: %f \nData: %s \nHora: %s",
-         transacao.ID,transacao.ID_Utilizador,transacao.Tipo,transacao.Valor,transacao.Data,transacao.Hora);
-
-    if(!conseguirString)printf(informacao);
-    else return *informacao;
-}
 
 bool validacaoBinaria(char[]);
 char validacaoCharacter(char [], char []);
