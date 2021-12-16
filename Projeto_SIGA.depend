@@ -15,3 +15,11 @@
 	<stdbool.h>
 	<errno.h>
 
+1638470044 source:c:\users\2211849\documents\github\projeto_siga\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<locale.h>
+	<stdbool.h>
+	<errno.h>
+
