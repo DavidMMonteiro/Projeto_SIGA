@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <locale.h>
 #include <stdbool.h>
 #include <errno.h>
@@ -26,12 +27,12 @@ bool validacaoBinaria(char[]);
 char validacaoCharacter(char [], char []);
 void esperarEnter(void);
 const char* getfield(char*, int);
-void carregarCSV(char[]);
-void importCSVUtilizadores(char[]);
+void carregarFicheiro(char[]);
+void importFicheiroUtilizadores(char[]);
 void guardarDadosUtilizador(char[], Utilizador*, int);
-void importCSVEscolas(char[]);
+void importFicheiroEscolas(char[], Escola []);
 void guardarDadosEscola(char[], Escola*, int);
-void importCSVTransacoes(char[]);
+void importFicheiroTransacoes(char[]);
 void guardarDadosTransacao(char [], Transacao*, int);
 Utilizador crearUtilizador(void);
 const char* obterString(char[]);
@@ -50,33 +51,26 @@ int main()
     char caminhoUtilizadores[] = /*"files/BIN/utilizadores.bin";*/"files/CSV/utilizadores.csv";
     char caminhoMovimentos[] = /*"files/BIN/movimentos.bin";*/"files/CSV/movimentos.csv";
 
+    //Dados
+    Escola escolas[5];
+
     do{
         system("cls");
-        resposta = validacaoCharacter("1 - Carregar Ficheiros CSV\n2 - Importar CSV Files\n3 - Inserir Dados\nX - Sair", "123X");
+        resposta = validacaoCharacter("1 - Carregar Ficheiros\n2 - Importar Ficheiros\n3 - Inserir Dados\nX - Sair", "123X");
         switch(resposta){
             case '1':
                 system("cls");
-                printf("Carregando Ficheiro %s\n\n", caminhoEscolas);
-                carregarCSV(caminhoEscolas);
-                printf("Finish reading file %s\n\n\nCarregando Ficheiro %s\n\n",caminhoEscolas,caminhoUtilizadores);
-                carregarCSV(caminhoUtilizadores);
-                printf("Finish reading file %s\n\n\nCarregando Ficheiro %s\n\n",caminhoUtilizadores,caminhoMovimentos);
-                carregarCSV(caminhoMovimentos);
-                printf("Finish reading file %s\n\n\n",caminhoMovimentos);
+                carregarFicheiro(caminhoEscolas);
+                carregarFicheiro(caminhoUtilizadores);
+                carregarFicheiro(caminhoMovimentos);
                 esperarEnter();
                 break;
             case '2':
                 system("cls");
-                printf("Carregando Ficheiro %s\n\n", caminhoUtilizadores);
-                importCSVUtilizadores(caminhoUtilizadores);
-                printf("Finish reading file %s\n\n", caminhoUtilizadores);
-                printf("Carregando Ficheiro %s\n\n", caminhoEscolas);
-                importCSVEscolas(caminhoEscolas);
-                printf("Finish reading file %s\n\n",caminhoEscolas);
+                importFicheiroUtilizadores(caminhoUtilizadores);
+                importFicheiroEscolas(caminhoEscolas, escolas);
                 //TODO Check why it doesn't get inside function to read moviments 
-                /*printf("Carregando Ficheiro %s\n\n",caminhoMovimentos);
-                importCSVTransacoes(caminhoMovimentos);
-                printf("Finish reading file %s\n\n\n",caminhoMovimentos);*/
+                //importFicheiroTransacoes(caminhoMovimentos);
                 esperarEnter();
                 break;
             case '3':
@@ -130,6 +124,23 @@ char validacaoCharacter(char texto[], char valores_validos[])
     return resposta;
 }
 
+// Obtem um valor numurico
+float obterNumero(char text[])
+{
+    float valor;
+    system("cls");
+    printf(text);
+    scanf(" %f", &valor);
+    return valor;
+}
+
+//Conversao de numeros em char para Int
+int charParaInt(char input) {
+    int output = 0;
+	output = input - '0';
+	return output;
+}
+
 // Para o programa ate o utilizador insira enter
 void esperarEnter(void)
 {
@@ -140,11 +151,14 @@ void esperarEnter(void)
 }
 
 // Lee informa��o dos ficheiros CSV que forem pasados
-void carregarCSV(char filePath[])
+void carregarFicheiro(char filePath[])
 {
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
+        
+        printf("\nCarregando Ficheiro %s\n\n", filePath);
+                
         char buffer[1024];
         int row = 0, column = 0;
 
@@ -167,6 +181,8 @@ void carregarCSV(char filePath[])
         }
         // Close the file
         fclose(fileStream);
+        printf("Finish reading file %s\n\n", filePath);
+
     }
     else
     {
@@ -176,12 +192,13 @@ void carregarCSV(char filePath[])
 }
 
 // Importa os dados dos Utilizadores para o programa
-void importCSVUtilizadores(char filePath[])
+void importFicheiroUtilizadores(char filePath[])
 {
     Utilizador utilizador[200];
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
+        printf("Carregando Ficheiro %s\n\n", filePath);
         char buffer[1024];
         int row = 0, column = 0;
 
@@ -206,6 +223,8 @@ void importCSVUtilizadores(char filePath[])
         }
         // Close the file
         fclose(fileStream);
+        printf("Finish reading file %s\n\n", filePath);
+
     }
     else
     {
@@ -215,12 +234,13 @@ void importCSVUtilizadores(char filePath[])
 }
 
 // Importa os dados das Escolas para o programa
-void importCSVEscolas(char filePath[])
+void importFicheiroEscolas(char filePath[], Escola lista_escolas[])
 {
-    Escola escolas[5];
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
+        
+        printf("Carregando Ficheiro %s\n\n", filePath);
         char buffer[1024];
         int row = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
@@ -236,15 +256,16 @@ void importCSVEscolas(char filePath[])
             {
                 //Check with it brakes reading Abreviatura
                 //printf("%s\t", value);
-                guardarDadosEscola(value, &escolas[index],column);
+                guardarDadosEscola(value, &lista_escolas[index],column);
                 value = strtok(NULL, ";");
                 column++;
             }
-            ImprimeEscola(escolas[index], false);
+            ImprimeEscola(lista_escolas[index], false);
             printf("\n");
         }
         // Close the file
         fclose(fileStream);
+        printf("Finish reading file %s\n\n", filePath);
     }
     else
     {
@@ -254,16 +275,13 @@ void importCSVEscolas(char filePath[])
 }
 
 // Importa os dados das Transa��es para o programa
-void importCSVTransacoes(char filePath[])
+void importFicheiroTransacoes(char filePath[])
 {
-    printf("Start Function!");
-    esperarEnter();
     Transacao transacoes[5000];
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
-        printf("Reading file!");
-        esperarEnter();
+        printf("Carregando Ficheiro %s\n\n", filePath);
         char buffer[1024];
         int row = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
@@ -288,6 +306,7 @@ void importCSVTransacoes(char filePath[])
         }
         // Close the file
         fclose(fileStream);
+        printf("Finish reading file %s\n\n", filePath);
     }
     else
     {
@@ -405,8 +424,9 @@ Utilizador crearUtilizador(void)
         //printf(ImprimeUtilizador(novo_utilizador,true));
         system("cls");
         //TODO Check why ImprimeUtilizador retorna null
-        snprintf(texto_verificacao,sizeof(texto_verificacao),"Tem a sarte�a que quere inserir este dados?\n%s\n",ImprimeUtilizador(novo_utilizador,true));
-    }while(!validacaoBinaria(texto_verificacao));
+        ImprimeUtilizador(novo_utilizador,true);
+    }while(!validacaoBinaria("Tem a sarte�a que quere inserir este dados?"));
+    return novo_utilizador;
 }
 
 // Obtem uma string do utilizador
@@ -418,23 +438,6 @@ const char* obterString(char text[])
     fflush(stdin);
     fgets(data, sizeof(data), stdin);
     return data;
-}
-
-// Obtem ym valor num�rico
-float obterNumero(char text[])
-{
-    float valor;
-    system("cls");
-    printf(text);
-    scanf(" %f", &valor);
-    return valor;
-}
-
-//Convers�o de n�meros em char para Int
-int charParaInt(char input) {
-    int output = 0;
-	output = input - '0';
-	return output;
 }
 
 // Pete ao utilizador insira un tipo de utilizador

@@ -12,7 +12,7 @@ typedef struct //Estrutura Escola
     char Localidade[1024];
 } Escola;
 
-char *ImprimeEscola(Escola escola, bool conseguirString)
+void ImprimeEscola(Escola escola, bool conseguirString)
 {
     char informacao[1024];
 
@@ -20,5 +20,5 @@ char *ImprimeEscola(Escola escola, bool conseguirString)
          escola.ID,escola.Nome,escola.Abreviatura,escola.Campus,escola.Localidade);
 
     if(!conseguirString)printf(informacao);
-    else return *informacao;
+    //else return *informacao;
 }
