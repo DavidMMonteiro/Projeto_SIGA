@@ -18,7 +18,7 @@ void ImprimeUtilizador(Utilizador util, bool conseguirString)
 {
     char informacao[1024];
     
-    snprintf(informacao, sizeof(informacao), "Id.%d \nId Escola.%d \nNome: %s \nNIF:%d \nTipo Utilizador:%s \nEmail:%s \nValor na Conta: %.2f",
+    snprintf(informacao, sizeof(informacao), "\n\nId.%d \nId Escola.%d \nNome: %s \nNIF:%d \nTipo Utilizador:%s \nEmail:%s \nValor na Conta: %.2f",
          util.ID,util.ID_Escola,util.Nome,util.NIF,util.Tipo,util.Email,util.Valor_Conta);
     
     if(!conseguirString)printf(informacao);

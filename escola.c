@@ -16,7 +16,7 @@ void ImprimeEscola(Escola escola, bool conseguirString)
 {
     char informacao[1024];
 
-    snprintf(informacao, sizeof(informacao), "Id.%d \nNome: %s \nAbreviatura: %s \nCampus: %s \nLocalidade: %s",
+    snprintf(informacao, sizeof(informacao), "\n\nId.%d \nNome: %s \nAbreviatura: %s \nCampus: %s \nLocalidade: %s",
          escola.ID,escola.Nome,escola.Abreviatura,escola.Campus,escola.Localidade);
 
     if(!conseguirString)printf(informacao);

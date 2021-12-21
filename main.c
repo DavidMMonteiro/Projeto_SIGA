@@ -1,11 +1,11 @@
 /*
     INFO
     Projeto para recriar o sistema SIGA das cantinas das escolas que fazem parte do IPL.
-    Este sistema ir� carregar ficheiros csv com a informa��o de escolas, utilizadores e as transa��es de cada utilizador.
-    Ir� permitir recriar o funcionamento do sistema SIGA como os correspondentes movimentos dos utilizadores nas diferentes institui��es
+    Este sistema ira carregar ficheiros csv com a informacao de escolas, utilizadores e as transacoes de cada utilizador.
+    Ira permitir recriar o funcionamento do sistema SIGA como os correspondentes movimentos dos utilizadores nas diferentes instituicoes
 
     OWNER INFO
-    Class: 4515 Curso T�cnico Superior Profissional de Programa��o de Sistemas de informa��o
+    Class: 4515 Curso Tecnico Superior Profissional de Programacao de Sistemas de informacao
     Student(s) number: 2211849
     Creator(s): David Machado Monteiro
 */
@@ -84,14 +84,21 @@ int main()
                 {
                 case 'U':
                     for(index = 0;index < sizeof(utilizadores)/sizeof(utilizadores[0]);index++)
-                        if(strlen(utilizadores[index].Nome) == 0) 
+                        if(strlen(utilizadores[index].Nome) != 0) 
                             ImprimeUtilizador(utilizadores[index], false);
+                    esperarEnter();
                     break;
                 case 'E':
-                    
+                    for(index = 0;index < sizeof(escolas)/sizeof(escolas[0]);index++)
+                        if(strlen(escolas[index].Nome) != 0) 
+                            ImprimeEscola(escolas[index], false);
+                    esperarEnter();
                     break;
                 case 'M':
-                    
+                    for(index = 0;index < sizeof(movimentos)/sizeof(movimentos[0]);index++)
+                        if(strlen(movimentos[index].Tipo) != 0) 
+                            ImprimeTransacao(movimentos[index], false);
+                    esperarEnter();
                     break;
                 default:
                     break;
@@ -107,13 +114,10 @@ int main()
                     index_novo_dado = -1;
                     while(index_novo_dado < 0 && index < sizeof(utilizadores)/sizeof(utilizadores[0]))
                     {
-                        printf("\nChecking data from user %d : %s",index,utilizadores[index].Nome);
                         if(strlen(utilizadores[index].Nome) == 0)
                             index_novo_dado = index;
-                        printf("Index Novo Dato atual: %d", index_novo_dado);
                         index++;
                     }
-                    esperarEnter();
                     if(index_novo_dado < 0) printf("Sem espaço para utilizador!");
                     else crearUtilizador();
                     break;
@@ -134,7 +138,7 @@ int main()
     }while(resposta != 'X');
 }
 
-// Valida��o para quest�es de Sim ou N�o
+// Validacao para questoes de Sim ou Nao
 bool validacaoBinaria(char texto[])
 {
     char resposta;
@@ -151,7 +155,7 @@ bool validacaoBinaria(char texto[])
     return resposta == 'Y' ? true : false;
 }
 
-// Valida��o de leitura de char's
+// Validacao de leitura de char's
 char validacaoCharacter(char texto[], char valores_validos[])
 {
     char resposta;
@@ -194,7 +198,7 @@ void esperarEnter(void)
     system("cls");
 }
 
-// Lee informa��o dos ficheiros CSV que forem pasados
+// Lee informacao dos ficheiros CSV que forem pasados
 void carregarFicheiro(char filePath[])
 {
     FILE* fileStream = fopen(filePath, "r");
@@ -242,7 +246,7 @@ void importFicheiroUtilizadores(char filePath[], Utilizador lista_utilizadores[]
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
-        printf("Carregando Ficheiro %s\n\n", filePath);
+        printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
         int row = 0, column = 0;
 
@@ -263,11 +267,10 @@ void importFicheiroUtilizadores(char filePath[], Utilizador lista_utilizadores[]
                 column++;
             }
             ImprimeUtilizador(lista_utilizadores[index],false);
-            printf("\n\n");
         }
         // Close the file
         fclose(fileStream);
-        printf("Finish reading file %s\n\n", filePath);
+        printf("\nFinish reading file %s\n\n", filePath);
 
     }
     else
@@ -285,7 +288,7 @@ void importFicheiroEscolas(char filePath[], Escola lista_escolas[])
     if (fileStream)
     {
 
-        printf("Carregando Ficheiro %s\n\n", filePath);
+        printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
         int row = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
@@ -306,11 +309,10 @@ void importFicheiroEscolas(char filePath[], Escola lista_escolas[])
                 column++;
             }
             ImprimeEscola(lista_escolas[index], false);
-            printf("\n");
         }
         // Close the file
         fclose(fileStream);
-        printf("Finish reading file %s\n\n", filePath);
+        printf("\nFinish reading file %s\n\n", filePath);
     }
     else
     {
@@ -325,7 +327,7 @@ void importFicheiroTransacoes(char filePath[], Transacao lista_movimentos[])
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
-        printf("Carregando Ficheiro %s\n\n", filePath);
+        printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
         int row = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
@@ -344,11 +346,10 @@ void importFicheiroTransacoes(char filePath[], Transacao lista_movimentos[])
                 column++;
             }
             ImprimeTransacao(lista_movimentos[index], false);
-            printf("\n");
         }
         // Close the file
         fclose(fileStream);
-        printf("Finish reading file %s\n\n", filePath);
+        printf("\nFinish reading file %s\n\n", filePath);
     }
     else
     {
@@ -434,7 +435,7 @@ void guardarDadosTransacao(char novo_dado[], Transacao *dados_antigos, int colun
 }
 
 // Devolve a informacao de uma string no campo especificado
-const char* getfield(char* line, int num)
+/*const char* getfield(char* line, int num)
 {
     const char* tok;
     for (tok = strtok(line, ";"); tok && *tok; tok = strtok(NULL, ";\n"))
@@ -443,12 +444,11 @@ const char* getfield(char* line, int num)
             return tok;
     }
     return NULL;
-}
+}*/
 
 // Cria um utilizador
 void crearUtilizador(void)//TODO Pass Struct by ref
 {
-    //TODO
     Utilizador novo_utilizador;
     system("cls");
     do
@@ -456,8 +456,8 @@ void crearUtilizador(void)//TODO Pass Struct by ref
         novo_utilizador.ID_Escola = charParaInt(validacaoCharacter("Escolha a sua escola\n2 - Escola Superior de Tecnologia e Gestão(ESTG)\n3 - Escola Superior de Turismo e Tecnologia do Mar(ESTM)", "23"));
         //TODO Check why can't copy string
         obterString("Insira o seu nome:", &novo_utilizador.Nome);
-        //printf("\nShow Name: %s",novo_utilizador.Nome);
-        //esperarEnter();
+        printf("\nShow Name: %s",novo_utilizador.Nome);
+        esperarEnter();
         novo_utilizador.NIF = (int) obterNumero("Insira o seu NIF:");
         escolherTipoUtilizador(&novo_utilizador.Tipo);
         //printf("\nShow Tipo Util: %s",novo_utilizador.Tipo);
