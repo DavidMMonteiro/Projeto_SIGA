@@ -21,7 +21,7 @@
 #include "escola.c"
 #include "transacao.c"
 
-#define TIPO_UTILIZADOR (char*[3]) {"Estudante","Docente","Funcion�rio"}
+#define TIPO_UTILIZADOR (char*[3]) {"Estudante","Docente","Funcionario"}
 
 bool validacaoBinaria(char[]);
 char validacaoCharacter(char [], char []);
@@ -34,57 +34,101 @@ void importFicheiroTransacoes(char[], Transacao []);
 void guardarDadosUtilizador(char[], Utilizador*, int);
 void guardarDadosEscola(char[], Escola*, int);
 void guardarDadosTransacao(char [], Transacao*, int);
-Utilizador crearUtilizador(void);
-const char* obterString(char[]);
+void crearUtilizador(void);
+void obterString(char[], char *);
 float obterNumero(char[]);
 int charParaInt(char);
-const char* escolherTipoUtilizador(void);
+void escolherTipoUtilizador(char *);
 
 int main()
 {
     // Let print special caracters
     setlocale(LC_ALL, "Portuguese");
 
-    // Variaveis
-    char resposta;
+    // Ficheiros
     char caminhoEscolas[] = /*"files/BIN/escolas.bin";*/"files/CSV/escolas.csv";
     char caminhoUtilizadores[] = /*"files/BIN/utilizadores.bin";*/"files/CSV/utilizadores.csv";
     char caminhoMovimentos[] = /*"files/BIN/movimentos.bin";*/"files/CSV/movimentos.csv";
-
+    // Variveis
+    char resposta;
+    int index, index_novo_dado;
+    // Dados
     Utilizador utilizadores[200];
     Escola escolas[5];
     Transacao movimentos[1000];//This shit doesn't work if you use array[5000]
 
+    if(validacaoBinaria("Quere carregar os ficheiros?"))
+    {
+        system("cls");
+        carregarFicheiro(caminhoEscolas);
+        carregarFicheiro(caminhoUtilizadores);
+        carregarFicheiro(caminhoMovimentos);
+        esperarEnter();
+    }
+
+    if(validacaoBinaria("Quere importar dados dos ficheiros ao sistema?"))
+    {
+        system("cls");
+        importFicheiroUtilizadores(caminhoUtilizadores, utilizadores);
+        importFicheiroEscolas(caminhoEscolas, escolas);
+        importFicheiroTransacoes(caminhoMovimentos, movimentos);
+        esperarEnter();
+    }
+
     do{
         system("cls");
-        resposta = validacaoCharacter("1 - Carregar Ficheiros\n2 - Importar Ficheiros\n3 - Inserir Dados\nX - Sair", "123X");
+        resposta = validacaoCharacter("1 - Ver dados no sistema\n3 - Inserir Dados\nX - Sair", "13X");
         switch(resposta){
             case '1':
-                system("cls");
-                carregarFicheiro(caminhoEscolas);
-                carregarFicheiro(caminhoUtilizadores);
-                carregarFicheiro(caminhoMovimentos);
-                esperarEnter();
-                break;
-            case '2':
-                system("cls");
-                importFicheiroUtilizadores(caminhoUtilizadores, utilizadores);
-                importFicheiroEscolas(caminhoEscolas, escolas);
-                importFicheiroTransacoes(caminhoMovimentos, movimentos);
-                esperarEnter();
-                break;
+                switch (validacaoCharacter("U - Dados Utilizadores\nE - Dados Escolas\nM - Movimentos\nX - Sair", "UEMX"))
+                {
+                case 'U':
+                    for(index = 0;index < sizeof(utilizadores)/sizeof(utilizadores[0]);index++)
+                        if(strlen(utilizadores[index].Nome) == 0) 
+                            ImprimeUtilizador(utilizadores[index], false);
+                    break;
+                case 'E':
+                    
+                    break;
+                case 'M':
+                    
+                    break;
+                default:
+                    break;
+                }
+                break; 
             case '3':
                 system("cls");
                 resposta = validacaoCharacter("Escolha o tipo de da dados que quere inserir.\nU - Utilizador\nE - Escola\nX - Cancelar", "UEX");
                 switch(resposta)
                 {
                 case 'U':
-                    crearUtilizador();
+                    index = 0;
+                    index_novo_dado = -1;
+                    while(index_novo_dado < 0 && index < sizeof(utilizadores)/sizeof(utilizadores[0]))
+                    {
+                        printf("\nChecking data from user %d : %s",index,utilizadores[index].Nome);
+                        if(strlen(utilizadores[index].Nome) == 0)
+                            index_novo_dado = index;
+                        printf("Index Novo Dato atual: %d", index_novo_dado);
+                        index++;
+                    }
+                    esperarEnter();
+                    if(index_novo_dado < 0) printf("Sem espaço para utilizador!");
+                    else crearUtilizador();
                     break;
                 case 'E':
                     //TODO Crear Escola
                     break;
                 }
+                break;
+            case 'X':
+                break;
+
+            default:
+                system("cls");
+                printf("Opção não encontrada");
+                esperarEnter();
                 break;
         }
     }while(resposta != 'X');
@@ -98,7 +142,7 @@ bool validacaoBinaria(char texto[])
     {
         //system("cls");
         printf("%s", texto);
-        printf("\nY - Sim\nN - N�o\n\n-->");
+        printf("\nY - Sim\nN - Nao\n\n-->");
         fflush(stdin);
         scanf(" %c", &resposta);
         resposta = toupper(resposta);
@@ -389,7 +433,7 @@ void guardarDadosTransacao(char novo_dado[], Transacao *dados_antigos, int colun
     }
 }
 
-// Devolve a informa��o de uma string no campo especificado
+// Devolve a informacao de uma string no campo especificado
 const char* getfield(char* line, int num)
 {
     const char* tok;
@@ -402,43 +446,43 @@ const char* getfield(char* line, int num)
 }
 
 // Cria um utilizador
-Utilizador crearUtilizador(void)
+void crearUtilizador(void)//TODO Pass Struct by ref
 {
     //TODO
     Utilizador novo_utilizador;
     system("cls");
     do
     {
-        novo_utilizador.ID_Escola = charParaInt(validacaoCharacter("Escolha a sua escola\n2 - Escola Superior de Tecnologia e Gest�o(ESTG)\n3 - Escola Superior de Turismo e Tecnologia do Mar(ESTM)", "23"));
+        novo_utilizador.ID_Escola = charParaInt(validacaoCharacter("Escolha a sua escola\n2 - Escola Superior de Tecnologia e Gestão(ESTG)\n3 - Escola Superior de Turismo e Tecnologia do Mar(ESTM)", "23"));
         //TODO Check why can't copy string
-        strcpy(novo_utilizador.Nome,obterString("Insira o seu nome:"));
-        printf("Show Name: %s",novo_utilizador.Nome);
-        esperarEnter();
+        obterString("Insira o seu nome:", &novo_utilizador.Nome);
+        //printf("\nShow Name: %s",novo_utilizador.Nome);
+        //esperarEnter();
         novo_utilizador.NIF = (int) obterNumero("Insira o seu NIF:");
-        strcpy(novo_utilizador.Tipo, escolherTipoUtilizador());
-        strcpy(novo_utilizador.Email, obterString("Insira o seu Email:"));
+        escolherTipoUtilizador(&novo_utilizador.Tipo);
+        //printf("\nShow Tipo Util: %s",novo_utilizador.Tipo);
+        //esperarEnter();
+        obterString("Insira o seu Email:", &novo_utilizador.Email);
         novo_utilizador.Valor_Conta = obterNumero("Insira o seu valor inicial:");
-        //printf(ImprimeUtilizador(novo_utilizador,true));
         system("cls");
         //TODO Check why ImprimeUtilizador retorna null
+        printf("Dados inseridos: \n");
         ImprimeUtilizador(novo_utilizador,true);
-    }while(!validacaoBinaria("Tem a sarte�a que quere inserir este dados?"));
-    return novo_utilizador;
+        esperarEnter();
+    }while(!validacaoBinaria("Tem a sarteça que quere inserir este dados?"));
 }
 
 // Obtem uma string do utilizador
-const char* obterString(char text[])
+void obterString(char text[], char *data)
 {
-    char *data;
     system("cls");
     printf(text);
     fflush(stdin);
     fgets(data, sizeof(data), stdin);
-    return data;
 }
 
 // Pete ao utilizador insira un tipo de utilizador
-const char *escolherTipoUtilizador(void)
+void escolherTipoUtilizador(char *inserir_tipo)
 {
     char texto[] = "Escolha o tipo de utilizador\n1 - Estudante\n2 - Docente\n3 - Funcion�ria", valoresValidos[] = "123";
 
@@ -450,6 +494,6 @@ const char *escolherTipoUtilizador(void)
         strcat(valoresValidos, index + 1);
     }
     strcat(texto,printf("\n\n-->"));*/
-    return TIPO_UTILIZADOR[validacaoCharacter(texto, valoresValidos) - '0' - 1];
+    strcpy(inserir_tipo,TIPO_UTILIZADOR[validacaoCharacter(texto, valoresValidos) - '0' - 1]);
 }
 
