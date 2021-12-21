@@ -7,7 +7,7 @@
 	<stdbool.h>
 	<errno.h>
 
-1640101338 source:c:\users\david\onedrive - ipleiria\documents\github\projeto_siga\main.c
+1640105100 source:c:\users\david\onedrive - ipleiria\documents\github\projeto_siga\main.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -39,7 +39,7 @@
 	<string.h>
 	<stdbool.h>
 
-1640100246 c:\users\david\onedrive - ipleiria\documents\github\projeto_siga\transacao.c
+1640105144 c:\users\david\onedrive - ipleiria\documents\github\projeto_siga\transacao.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>

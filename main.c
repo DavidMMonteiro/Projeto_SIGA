@@ -28,11 +28,11 @@ char validacaoCharacter(char [], char []);
 void esperarEnter(void);
 const char* getfield(char*, int);
 void carregarFicheiro(char[]);
-void importFicheiroUtilizadores(char[]);
-void guardarDadosUtilizador(char[], Utilizador*, int);
+void importFicheiroUtilizadores(char[], Utilizador []);
 void importFicheiroEscolas(char[], Escola []);
+void importFicheiroTransacoes(char[], Transacao []);
+void guardarDadosUtilizador(char[], Utilizador*, int);
 void guardarDadosEscola(char[], Escola*, int);
-void importFicheiroTransacoes(char[]);
 void guardarDadosTransacao(char [], Transacao*, int);
 Utilizador crearUtilizador(void);
 const char* obterString(char[]);
@@ -51,8 +51,9 @@ int main()
     char caminhoUtilizadores[] = /*"files/BIN/utilizadores.bin";*/"files/CSV/utilizadores.csv";
     char caminhoMovimentos[] = /*"files/BIN/movimentos.bin";*/"files/CSV/movimentos.csv";
 
-    //Dados
+    Utilizador utilizadores[200];
     Escola escolas[5];
+    Transacao movimentos[1000];//This shit doesn't work if you use array[5000]
 
     do{
         system("cls");
@@ -67,10 +68,9 @@ int main()
                 break;
             case '2':
                 system("cls");
-                importFicheiroUtilizadores(caminhoUtilizadores);
+                importFicheiroUtilizadores(caminhoUtilizadores, utilizadores);
                 importFicheiroEscolas(caminhoEscolas, escolas);
-                //TODO Check why it doesn't get inside function to read moviments 
-                //importFicheiroTransacoes(caminhoMovimentos);
+                importFicheiroTransacoes(caminhoMovimentos, movimentos);
                 esperarEnter();
                 break;
             case '3':
@@ -156,9 +156,9 @@ void carregarFicheiro(char filePath[])
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
-        
+
         printf("\nCarregando Ficheiro %s\n\n", filePath);
-                
+
         char buffer[1024];
         int row = 0, column = 0;
 
@@ -192,9 +192,9 @@ void carregarFicheiro(char filePath[])
 }
 
 // Importa os dados dos Utilizadores para o programa
-void importFicheiroUtilizadores(char filePath[])
+void importFicheiroUtilizadores(char filePath[], Utilizador lista_utilizadores[])
 {
-    Utilizador utilizador[200];
+    //Utilizador lista_utilizadores[200];
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
@@ -214,11 +214,11 @@ void importFicheiroUtilizadores(char filePath[])
             char* value = strtok(buffer, ";");
             while (value)
             {
-                guardarDadosUtilizador(value, &utilizador[index],column);
+                guardarDadosUtilizador(value, &lista_utilizadores[index],column);
                 value = strtok(NULL, ";");
                 column++;
             }
-            ImprimeUtilizador(utilizador[index],false);
+            ImprimeUtilizador(lista_utilizadores[index],false);
             printf("\n\n");
         }
         // Close the file
@@ -236,10 +236,11 @@ void importFicheiroUtilizadores(char filePath[])
 // Importa os dados das Escolas para o programa
 void importFicheiroEscolas(char filePath[], Escola lista_escolas[])
 {
+    //Escola lista_escolas[5];
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
-        
+
         printf("Carregando Ficheiro %s\n\n", filePath);
         char buffer[1024];
         int row = 0;
@@ -274,10 +275,9 @@ void importFicheiroEscolas(char filePath[], Escola lista_escolas[])
     }
 }
 
-// Importa os dados das Transa��es para o programa
-void importFicheiroTransacoes(char filePath[])
+// Importa os dados das Transacoes para o programa
+void importFicheiroTransacoes(char filePath[], Transacao lista_movimentos[])
 {
-    Transacao transacoes[5000];
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
@@ -286,7 +286,6 @@ void importFicheiroTransacoes(char filePath[])
         int row = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
         {
-            printf("Reading line %d",row);
             int column = 0;
             row++;
             //Optional to ignore the header tables
@@ -296,13 +295,12 @@ void importFicheiroTransacoes(char filePath[])
             char* value = strtok(buffer, ";");
             while (value)
             {
-                printf("%s\t", value);
-                guardarDadosTransacao(value, &transacoes[index],column);
+                guardarDadosTransacao(value, &lista_movimentos[index],column);
                 value = strtok(NULL, ";");
                 column++;
             }
-            ImprimeTransacao(transacoes[index], false);
-            printf("\n\n");
+            ImprimeTransacao(lista_movimentos[index], false);
+            printf("\n");
         }
         // Close the file
         fclose(fileStream);
@@ -408,7 +406,6 @@ Utilizador crearUtilizador(void)
 {
     //TODO
     Utilizador novo_utilizador;
-    char texto_verificacao[1024];
     system("cls");
     do
     {

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-typedef struct //Estrutura Transa��o
+typedef struct //Estrutura de movimentos
 {
     int ID;
     int ID_Utilizador;
@@ -17,7 +17,7 @@ void ImprimeTransacao(Transacao transacao, bool conseguirString)
 {
     char informacao[1024];
 
-    snprintf(informacao, sizeof(informacao), "Id.%d \nId Util.%d \nTipo: %s \nValor: %f \nData: %s \nHora: %s",
+    snprintf(informacao, sizeof(informacao), "Id.%d \nId Util.%d \nTipo: %s \nValor: %.2f \nData: %s \nHora: %s",
          transacao.ID,transacao.ID_Utilizador,transacao.Tipo,transacao.Valor,transacao.Data,transacao.Hora);
 
     if(!conseguirString)printf(informacao);
