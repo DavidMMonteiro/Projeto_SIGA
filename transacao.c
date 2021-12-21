@@ -13,7 +13,7 @@ typedef struct //Estrutura Transa��o
     char Hora[10];
 } Transacao;
 
-void ImprimeTransacao(Transacao transacao, bool conseguirString)
+char *ImprimeTransacao(Transacao transacao, bool conseguirString)
 {
     char informacao[1024];
 
@@ -21,5 +21,5 @@ void ImprimeTransacao(Transacao transacao, bool conseguirString)
          transacao.ID,transacao.ID_Utilizador,transacao.Tipo,transacao.Valor,transacao.Data,transacao.Hora);
 
     if(!conseguirString)printf(informacao);
-    //else return *informacao;
+    else return *informacao;
 }
