@@ -33,6 +33,7 @@ void obterString(char[], char *);
 float obterFloat(char[]);
 int obterInt(char text[]);
 int charParaInt(char);
+void obterMayusculas(char [], char *); 
 
 //Funções específicas
 
@@ -46,7 +47,6 @@ void guardarDadosTransacao(char [], Transacao*, int);
 void crearUtilizador(Utilizador *, int);
 void escolherTipoUtilizador(char *);
 void crearEscola(Escola *);
-void obterMayusculas(char [], char *); 
 
 int main()
 {
@@ -515,7 +515,7 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador)
 void escolherTipoUtilizador(char *inserir_tipo)
 {
     char texto[] = "Escolha o tipo de utilizador\n1 - Estudante\n2 - Docente\n3 - Funcionario", valoresValidos[] = "123";
-    strcpy(inserir_tipo,TIPO_UTILIZADOR[validacaoCharacter(texto, valoresValidos) - '0' - 1]);
+    strcpy(inserir_tipo,TIPO_UTILIZADOR[charParaInt(validacaoCharacter(texto, valoresValidos) - 1)]);
 }
 
 // Cria uma nova escola
@@ -538,13 +538,13 @@ void crearEscola(Escola *escola_actual)
     *escola_actual = nova_escola;
 }
 
-// Obtem todas as letras mayusculas da string inserida
-void obterMayusculas(char nome[], char *abreviatura_escola) 
+// Obtem todas as letras mayusculas de uma string
+void obterMayusculas(char texto[], char *string_destino) 
 {
-    char abrevitura[10] = "";
-    for(int index = 0;index < strlen(nome) ; index++) 
-        if ('A' <= nome[index] && nome[index] <= 'Z')
-            strncat(abrevitura, &nome[index], 1);
-    strcpy(abreviatura_escola, abrevitura);
+    char letras_mayusculas[10] = "";
+    for(int index = 0;index < strlen(texto) ; index++) 
+        if ('A' <= texto[index] && texto[index] <= 'Z')
+            strncat(letras_mayusculas, &texto[index], 1);
+    strcpy(string_destino, letras_mayusculas);
 }
 
