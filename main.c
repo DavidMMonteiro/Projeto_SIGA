@@ -23,10 +23,19 @@
 
 #define TIPO_UTILIZADOR (char*[3]) {"Estudante","Docente","Funcionario"}
 
+//Funções Gerais
+
 bool validacaoBinaria(char[]);
 char validacaoCharacter(char [], char []);
 void esperarEnter(void);
 const char* getfield(char*, int);
+void obterString(char[], char *);
+float obterFloat(char[]);
+int obterInt(char text[]);
+int charParaInt(char);
+
+//Funções específicas
+
 void carregarFicheiro(char[]);
 void importFicheiroUtilizadores(char[], Utilizador []);
 void importFicheiroEscolas(char[], Escola []);
@@ -34,11 +43,10 @@ void importFicheiroTransacoes(char[], Transacao []);
 void guardarDadosUtilizador(char[], Utilizador*, int);
 void guardarDadosEscola(char[], Escola*, int);
 void guardarDadosTransacao(char [], Transacao*, int);
-void crearUtilizador(void);
-void obterString(char[], char *);
-float obterNumero(char[]);
-int charParaInt(char);
+void crearUtilizador(Utilizador *, int);
 void escolherTipoUtilizador(char *);
+void crearEscola(Escola *);
+void obterMayusculas(char [], char *); 
 
 int main()
 {
@@ -66,6 +74,7 @@ int main()
         esperarEnter();
     }
 
+    system("cls");
     if(validacaoBinaria("Quere importar dados dos ficheiros ao sistema?"))
     {
         system("cls");
@@ -77,7 +86,7 @@ int main()
 
     do{
         system("cls");
-        resposta = validacaoCharacter("1 - Ver dados no sistema\n3 - Inserir Dados\nX - Sair", "13X");
+        resposta = validacaoCharacter("1 - Ver dados no sistema\n2 - Inserir Dados\nX - Sair", "12X");
         switch(resposta){
             case '1':
                 switch (validacaoCharacter("U - Dados Utilizadores\nE - Dados Escolas\nM - Movimentos\nX - Sair", "UEMX"))
@@ -85,29 +94,28 @@ int main()
                 case 'U':
                     for(index = 0;index < sizeof(utilizadores)/sizeof(utilizadores[0]);index++)
                         if(strlen(utilizadores[index].Nome) != 0) 
-                            ImprimeUtilizador(utilizadores[index], false);
+                            ImprimeUtilizador(utilizadores[index]);
                     esperarEnter();
                     break;
                 case 'E':
                     for(index = 0;index < sizeof(escolas)/sizeof(escolas[0]);index++)
                         if(strlen(escolas[index].Nome) != 0) 
-                            ImprimeEscola(escolas[index], false);
+                            ImprimeEscola(escolas[index]);
                     esperarEnter();
                     break;
                 case 'M':
                     for(index = 0;index < sizeof(movimentos)/sizeof(movimentos[0]);index++)
                         if(strlen(movimentos[index].Tipo) != 0) 
-                            ImprimeTransacao(movimentos[index], false);
+                            ImprimeTransacao(movimentos[index]);
                     esperarEnter();
                     break;
                 default:
                     break;
                 }
                 break; 
-            case '3':
+            case '2':
                 system("cls");
-                resposta = validacaoCharacter("Escolha o tipo de da dados que quere inserir.\nU - Utilizador\nE - Escola\nX - Cancelar", "UEX");
-                switch(resposta)
+                switch(validacaoCharacter("Escolha o tipo de da dados que quere inserir.\nU - Utilizador\nE - Escola\nX - Cancelar", "UEX"))
                 {
                 case 'U':
                     index = 0;
@@ -119,10 +127,20 @@ int main()
                         index++;
                     }
                     if(index_novo_dado < 0) printf("Sem espaço para utilizador!");
-                    else crearUtilizador();
+                    else crearUtilizador(&utilizadores[index_novo_dado], index_novo_dado);
                     break;
                 case 'E':
-                    //TODO Crear Escola
+                    index = 0;
+                    index_novo_dado = -1;
+                    while(index_novo_dado < 0 && index < sizeof(escolas)/sizeof(escolas[0]))
+                    {
+                        if(strlen(escolas[index].Nome) == 0)
+                            index_novo_dado = index;
+                        index++;
+                    }
+                    if(index_novo_dado < 0) printf("Sem espaço para nova Escola!");
+                    else crearEscola(&escolas[index_novo_dado]);
+
                     break;
                 }
                 break;
@@ -172,13 +190,25 @@ char validacaoCharacter(char texto[], char valores_validos[])
     return resposta;
 }
 
-// Obtem um valor numurico
-float obterNumero(char text[])
+// Obtem um valor numerico float
+float obterFloat(char text[])
 {
     float valor;
     system("cls");
     printf(text);
+    fflush(stdin);
     scanf(" %f", &valor);
+    return valor;
+}
+
+//Obter um valor numerico int
+int obterInt(char text[])
+{
+    int valor;
+    system("cls");
+    printf(text);
+    fflush(stdin);
+    scanf(" %d", &valor);
     return valor;
 }
 
@@ -193,9 +223,22 @@ int charParaInt(char input) {
 void esperarEnter(void)
 {
     fflush(stdin);
-    printf("Enter para continuar...");
+    printf("\nEnter para continuar...");
     getchar();
-    system("cls");
+}
+
+// Obtem uma string do utilizador
+void obterString(char text[], char *data)
+{
+    char input[255];
+    do{
+        system("cls");
+        fflush(stdin);
+        printf(text);
+        fgets(input, sizeof(input), stdin);
+    }while(input == "");
+    input[sizeof(input)-1] = '\0';
+    strcpy(data,input);
 }
 
 // Lee informacao dos ficheiros CSV que forem pasados
@@ -266,7 +309,7 @@ void importFicheiroUtilizadores(char filePath[], Utilizador lista_utilizadores[]
                 value = strtok(NULL, ";");
                 column++;
             }
-            ImprimeUtilizador(lista_utilizadores[index],false);
+            ImprimeUtilizador(lista_utilizadores[index]);
         }
         // Close the file
         fclose(fileStream);
@@ -308,7 +351,7 @@ void importFicheiroEscolas(char filePath[], Escola lista_escolas[])
                 value = strtok(NULL, ";");
                 column++;
             }
-            ImprimeEscola(lista_escolas[index], false);
+            ImprimeEscola(lista_escolas[index]);
         }
         // Close the file
         fclose(fileStream);
@@ -345,7 +388,7 @@ void importFicheiroTransacoes(char filePath[], Transacao lista_movimentos[])
                 value = strtok(NULL, ";");
                 column++;
             }
-            ImprimeTransacao(lista_movimentos[index], false);
+            ImprimeTransacao(lista_movimentos[index]);
         }
         // Close the file
         fclose(fileStream);
@@ -434,8 +477,8 @@ void guardarDadosTransacao(char novo_dado[], Transacao *dados_antigos, int colun
     }
 }
 
-// Devolve a informacao de uma string no campo especificado
-/*const char* getfield(char* line, int num)
+/* Devolve a informacao de uma string no campo especificado
+const char* getfield(char* line, int num)
 {
     const char* tok;
     for (tok = strtok(line, ";"); tok && *tok; tok = strtok(NULL, ";\n"))
@@ -447,53 +490,61 @@ void guardarDadosTransacao(char novo_dado[], Transacao *dados_antigos, int colun
 }*/
 
 // Cria um utilizador
-void crearUtilizador(void)//TODO Pass Struct by ref
+void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador)
 {
-    Utilizador novo_utilizador;
+    Utilizador novo_utilizador = *utilizador_actual;
     system("cls");
     do
     {
+        novo_utilizador.ID = id_novo_utilizador;
         novo_utilizador.ID_Escola = charParaInt(validacaoCharacter("Escolha a sua escola\n2 - Escola Superior de Tecnologia e Gestão(ESTG)\n3 - Escola Superior de Turismo e Tecnologia do Mar(ESTM)", "23"));
-        //TODO Check why can't copy string
-        obterString("Insira o seu nome:", &novo_utilizador.Nome);
-        printf("\nShow Name: %s",novo_utilizador.Nome);
-        esperarEnter();
-        novo_utilizador.NIF = (int) obterNumero("Insira o seu NIF:");
+        obterString("Insira o seu nome: ", novo_utilizador.Nome);
+        novo_utilizador.NIF = obterInt("Insira o seu NIF:");
         escolherTipoUtilizador(&novo_utilizador.Tipo);
-        //printf("\nShow Tipo Util: %s",novo_utilizador.Tipo);
-        //esperarEnter();
-        obterString("Insira o seu Email:", &novo_utilizador.Email);
-        novo_utilizador.Valor_Conta = obterNumero("Insira o seu valor inicial:");
+        obterString("Insira o seu Email: ", novo_utilizador.Email);
+        novo_utilizador.Valor_Conta = obterFloat("Insira o seu valor inicial:");
         system("cls");
-        //TODO Check why ImprimeUtilizador retorna null
-        printf("Dados inseridos: \n");
-        ImprimeUtilizador(novo_utilizador,true);
+        printf("Dados inseridos:");
+        ImprimeUtilizador(novo_utilizador);
         esperarEnter();
-    }while(!validacaoBinaria("Tem a sarteça que quere inserir este dados?"));
+    }while(!validacaoBinaria("\nTem a sarteca que quere inserir este dados?"));
+    *utilizador_actual = novo_utilizador;
 }
 
-// Obtem uma string do utilizador
-void obterString(char text[], char *data)
-{
-    system("cls");
-    printf(text);
-    fflush(stdin);
-    fgets(data, sizeof(data), stdin);
-}
-
-// Pete ao utilizador insira un tipo de utilizador
+// Pede ao utilizador insira un tipo de utilizador
 void escolherTipoUtilizador(char *inserir_tipo)
 {
-    char texto[] = "Escolha o tipo de utilizador\n1 - Estudante\n2 - Docente\n3 - Funcion�ria", valoresValidos[] = "123";
-
-    // TODO Check how to make it dynamic
-    /*system("cls");
-    for(int index = 0; index < sizeof(TIPO_UTILIZADOR)/sizeof(TIPO_UTILIZADOR[0]); index++)
-    {
-        texto = texto + "\n" + index + 1 + " - " + TIPO_UTILIZADOR[index];
-        strcat(valoresValidos, index + 1);
-    }
-    strcat(texto,printf("\n\n-->"));*/
+    char texto[] = "Escolha o tipo de utilizador\n1 - Estudante\n2 - Docente\n3 - Funcionario", valoresValidos[] = "123";
     strcpy(inserir_tipo,TIPO_UTILIZADOR[validacaoCharacter(texto, valoresValidos) - '0' - 1]);
+}
+
+// Cria uma nova escola
+void crearEscola(Escola *escola_actual) 
+{
+    Escola nova_escola = *escola_actual;
+    system("cls");
+    do
+    {
+        nova_escola.ID = obterInt("Insira Id da nova escola: ");
+        obterString("Insira o nome da nova escola: ", &nova_escola.Nome);
+        obterMayusculas(nova_escola.Nome, nova_escola.Abreviatura);
+        obterString("Insira o Campus da nova escola: ", &nova_escola.Campus);
+        obterString("Insira a Localidade da nova escola: ", &nova_escola.Localidade);
+        system("cls");
+        printf("Dados inseridos:");
+        ImprimeEscola(nova_escola);
+        esperarEnter();
+    }while(!validacaoBinaria("\nTem a sarteca que quere inserir este dados?"));
+    *escola_actual = nova_escola;
+}
+
+// Obtem todas as letras mayusculas da string inserida
+void obterMayusculas(char nome[], char *abreviatura_escola) 
+{
+    char abrevitura[10] = "";
+    for(int index = 0;index < strlen(nome) ; index++) 
+        if ('A' <= nome[index] && nome[index] <= 'Z')
+            strncat(abrevitura, &nome[index], 1);
+    strcpy(abreviatura_escola, abrevitura);
 }
 

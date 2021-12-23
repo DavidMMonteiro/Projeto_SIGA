@@ -13,13 +13,12 @@ typedef struct //Estrutura de movimentos
     char Hora[10];
 } Transacao;
 
-void ImprimeTransacao(Transacao transacao, bool conseguirString)
+void ImprimeTransacao(Transacao transacao)
 {
     char informacao[1024];
 
     snprintf(informacao, sizeof(informacao), "\n\nId.%d \nId Util.%d \nTipo: %s \nValor: %.2f \nData: %s \nHora: %s",
          transacao.ID,transacao.ID_Utilizador,transacao.Tipo,transacao.Valor,transacao.Data,transacao.Hora);
 
-    if(!conseguirString)printf(informacao);
-    //else return *informacao;
+    printf("%s",informacao);
 }
