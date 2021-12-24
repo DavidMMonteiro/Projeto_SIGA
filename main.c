@@ -237,7 +237,14 @@ void obterString(char text[], char *data)
         printf(text);
         fgets(input, sizeof(input), stdin);
     }while(input == "");
-    input[sizeof(input)-1] = '\0';
+
+    //Depuração de String
+    //Verificar se existem \n na string e sustitui
+    for(int index = 0;index < sizeof(input); index++)
+        if(input[index] == '\n')
+            input[index] = '\0';
+
+    //Copia a string inserida para a variavel pasada a função
     strcpy(data,input);
 }
 
@@ -247,36 +254,36 @@ void carregarFicheiro(char filePath[])
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
-
         printf("\nCarregando Ficheiro %s\n\n", filePath);
 
         char buffer[1024];
-        int row = 0, column = 0;
+        int linha = 0, coluna = 0;
 
         while (fgets(buffer, sizeof(buffer), fileStream))
         {
-            column = 0;
-            row++;
+            coluna = 0;
+            linha++;
 
             //Optional to ignore the header tables
-            if (row == 1) continue;
+            if (linha == 1) continue;
             // Splitting the data
             char* value = strtok(buffer, ";");
             while (value)
             {
                 printf("%s\t", value);
                 value = strtok(NULL, ";");
-                column++;
+                coluna++;
             }
             printf("\n");
         }
-        // Close the file
+        // Fechar o ficheiro
         fclose(fileStream);
         printf("Finish reading file %s\n\n", filePath);
 
     }
     else
     {
+        //Caso não conseguir abrir o ficheiro manda uma mensagem avisar o utilizador
         printf("Error opening file: %s\n", filePath);
         perror("Error");
     }
@@ -291,23 +298,23 @@ void importFicheiroUtilizadores(char filePath[], Utilizador lista_utilizadores[]
     {
         printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
-        int row = 0, column = 0;
+        int linha = 0, coluna = 0;
 
         while (fgets(buffer, sizeof(buffer), fileStream))
         {
-            column = 0;
-            row++;
+            coluna = 0;
+            linha++;
 
             //Optional to ignore the header tables
-            if (row == 1) continue;
-            int index = row - 2;
+            if (linha == 1) continue;
+            int index = linha - 2;
             // Splitting the data
             char* value = strtok(buffer, ";");
             while (value)
             {
-                guardarDadosUtilizador(value, &lista_utilizadores[index],column);
+                guardarDadosUtilizador(value, &lista_utilizadores[index],coluna);
                 value = strtok(NULL, ";");
-                column++;
+                coluna++;
             }
             ImprimeUtilizador(lista_utilizadores[index]);
         }
@@ -333,23 +340,23 @@ void importFicheiroEscolas(char filePath[], Escola lista_escolas[])
 
         printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
-        int row = 0;
+        int linha = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
         {
-            int column = 0;
-            row++;
+            int coluna = 0;
+            linha++;
             //Optional to ignore the header tables
-            if (row == 1) continue;
-            int index = row - 2;
+            if (linha == 1) continue;
+            int index = linha - 2;
             // Splitting the data
             char* value = strtok(buffer, ";");
             while (value)
             {
                 //Check with it brakes reading Abreviatura
                 //printf("%s\t", value);
-                guardarDadosEscola(value, &lista_escolas[index],column);
+                guardarDadosEscola(value, &lista_escolas[index],coluna);
                 value = strtok(NULL, ";");
-                column++;
+                coluna++;
             }
             ImprimeEscola(lista_escolas[index]);
         }
@@ -372,21 +379,21 @@ void importFicheiroTransacoes(char filePath[], Transacao lista_movimentos[])
     {
         printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
-        int row = 0;
+        int linha = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
         {
-            int column = 0;
-            row++;
+            int coluna = 0;
+            linha++;
             //Optional to ignore the header tables
-            if (row == 1) continue;
-            int index = row - 2;
+            if (linha == 1) continue;
+            int index = linha - 2;
             // Splitting the data
             char* value = strtok(buffer, ";");
             while (value)
             {
-                guardarDadosTransacao(value, &lista_movimentos[index],column);
+                guardarDadosTransacao(value, &lista_movimentos[index],coluna);
                 value = strtok(NULL, ";");
-                column++;
+                coluna++;
             }
             ImprimeTransacao(lista_movimentos[index]);
         }

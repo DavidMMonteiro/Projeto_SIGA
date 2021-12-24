@@ -16,8 +16,8 @@ void ImprimeEscola(Escola escola)
 {
     char informacao[1024];
 
-    snprintf(informacao, sizeof(informacao), "\n\nId.%d \nNome: %s \nAbreviatura: %s \nCampus: %s \nLocalidade: %s",
+    snprintf(informacao, sizeof(informacao), "\nId.%d \nNome: %s \nAbreviatura: %s \nCampus: %s \nLocalidade: %s",
          escola.ID,escola.Nome,escola.Abreviatura,escola.Campus,escola.Localidade);
 
-    printf("%s",informacao);
+    printf("%s\n",informacao);
 }

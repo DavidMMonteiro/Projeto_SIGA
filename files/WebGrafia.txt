@@ -1,0 +1,2 @@
+https://stackoverflow.com/questions/33510561/c-extracting-capital-letters-from-string/33510785
+https://www.geeksforgeeks.org/how-to-append-a-character-to-a-string-in-c/
