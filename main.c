@@ -37,10 +37,10 @@ void obterMayusculas(char [], char *);
 
 //Funções específicas
 
-void carregarFicheiro(char[]);
-void importFicheiroUtilizadores(char[], Utilizador []);
-void importFicheiroEscolas(char[], Escola []);
-void importFicheiroTransacoes(char[], Transacao []);
+//void carregarFicheiro(char[]);
+void importFicheiroCSVUtilizadores(char[], Utilizador []);
+void importFicheiroCSVEscolas(char[], Escola []);
+void importFicheiroCSVTransacoes(char[], Transacao []);
 void guardarDadosUtilizador(char[], Utilizador*, int);
 void guardarDadosEscola(char[], Escola*, int);
 void guardarDadosTransacao(char [], Transacao*, int);
@@ -54,33 +54,33 @@ int main()
     setlocale(LC_ALL, "Portuguese");
 
     // Ficheiros
-    char caminhoEscolas[] = /*"files/BIN/escolas.bin";*/"files/CSV/escolas.csv";
-    char caminhoUtilizadores[] = /*"files/BIN/utilizadores.bin";*/"files/CSV/utilizadores.csv";
-    char caminhoMovimentos[] = /*"files/BIN/movimentos.bin";*/"files/CSV/movimentos.csv";
+    char caminhoCSVEscolas[] = /*"files/BIN/escolas.bin";*/"files/CSV/escolas.csv";
+    char caminhoCSVUtilizadores[] = /*"files/BIN/utilizadores.bin";*/"files/CSV/utilizadores.csv";
+    char caminhoCSVMovimentos[] = /*"files/BIN/movimentos.bin";*/"files/CSV/movimentos.csv";
     // Variveis
     char resposta;
     int index, index_novo_dado;
     // Dados
     Utilizador utilizadores[200];
     Escola escolas[5];
-    Transacao movimentos[1000];//This shit doesn't work if you use array[5000]
+    Transacao movimentos[1000];//Array doesn't work if you use array[5000]
 
-    if(validacaoBinaria("Quere carregar os ficheiros?"))
+    /*if(validacaoBinaria("Quere carregar os ficheiros?"))
     {
         system("cls");
-        carregarFicheiro(caminhoEscolas);
-        carregarFicheiro(caminhoUtilizadores);
-        carregarFicheiro(caminhoMovimentos);
+        carregarFicheiro(caminhoCSVEscolas);
+        carregarFicheiro(caminhoCSVUtilizadores);
+        carregarFicheiro(caminhoCSVMovimentos);
         esperarEnter();
-    }
+    }*/
 
     system("cls");
     if(validacaoBinaria("Quere importar dados dos ficheiros ao sistema?"))
     {
         system("cls");
-        importFicheiroUtilizadores(caminhoUtilizadores, utilizadores);
-        importFicheiroEscolas(caminhoEscolas, escolas);
-        importFicheiroTransacoes(caminhoMovimentos, movimentos);
+        importFicheiroCSVUtilizadores(caminhoCSVUtilizadores, utilizadores);
+        importFicheiroCSVEscolas(caminhoCSVEscolas, escolas);
+        importFicheiroCSVTransacoes(caminhoCSVMovimentos, movimentos);
         esperarEnter();
     }
 
@@ -248,7 +248,7 @@ void obterString(char text[], char *data)
     strcpy(data,input);
 }
 
-// Lee informacao dos ficheiros CSV que forem pasados
+/* Lee informacao dos ficheiros CSV que forem pasados
 void carregarFicheiro(char filePath[])
 {
     FILE* fileStream = fopen(filePath, "r");
@@ -287,16 +287,16 @@ void carregarFicheiro(char filePath[])
         printf("Error opening file: %s\n", filePath);
         perror("Error");
     }
-}
+}*/
 
 // Importa os dados dos Utilizadores para o programa
-void importFicheiroUtilizadores(char filePath[], Utilizador lista_utilizadores[])
+void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadores[])
 {
     //Utilizador lista_utilizadores[200];
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
-        printf("Carregando Ficheiro %s", filePath);
+        //printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
         int linha = 0, coluna = 0;
 
@@ -316,29 +316,28 @@ void importFicheiroUtilizadores(char filePath[], Utilizador lista_utilizadores[]
                 value = strtok(NULL, ";");
                 coluna++;
             }
-            ImprimeUtilizador(lista_utilizadores[index]);
+            //ImprimeUtilizador(lista_utilizadores[index]);
         }
         // Close the file
         fclose(fileStream);
-        printf("\nFinish reading file %s\n\n", filePath);
+        printf("\nFinish reading file %s\n", filePath);
 
     }
     else
     {
-        printf("Error opening file: %s\n", filePath);
+        printf("\nError opening file: %s\n", filePath);
         perror("Error");
     }
 }
 
 // Importa os dados das Escolas para o programa
-void importFicheiroEscolas(char filePath[], Escola lista_escolas[])
+void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[])
 {
     //Escola lista_escolas[5];
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
-
-        printf("Carregando Ficheiro %s", filePath);
+        //printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
         int linha = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
@@ -358,26 +357,26 @@ void importFicheiroEscolas(char filePath[], Escola lista_escolas[])
                 value = strtok(NULL, ";");
                 coluna++;
             }
-            ImprimeEscola(lista_escolas[index]);
+            //ImprimeEscola(lista_escolas[index]);
+            fclose(fileStream);
         }
         // Close the file
-        fclose(fileStream);
-        printf("\nFinish reading file %s\n\n", filePath);
+        printf("\nFinish reading file %s\n", filePath);
     }
     else
     {
-        printf("Error opening file: %s\n", filePath);
+        printf("\nError opening file: %s\n", filePath);
         perror("Error");
     }
 }
 
 // Importa os dados das Transacoes para o programa
-void importFicheiroTransacoes(char filePath[], Transacao lista_movimentos[])
+void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[])
 {
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
-        printf("Carregando Ficheiro %s", filePath);
+        //printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
         int linha = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
@@ -395,15 +394,15 @@ void importFicheiroTransacoes(char filePath[], Transacao lista_movimentos[])
                 value = strtok(NULL, ";");
                 coluna++;
             }
-            ImprimeTransacao(lista_movimentos[index]);
+            //ImprimeTransacao(lista_movimentos[index]);
         }
         // Close the file
         fclose(fileStream);
-        printf("\nFinish reading file %s\n\n", filePath);
+        printf("\nFinish reading file %s\n", filePath);
     }
     else
     {
-        printf("Error opening file: %s\n", filePath);
+        printf("\nError opening file: %s\n", filePath);
         perror("Error");
     }
 }
@@ -484,8 +483,6 @@ void guardarDadosTransacao(char novo_dado[], Transacao *dados_antigos, int colun
     }
 }
 
-
-
 // Cria um utilizador
 void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador)
 {
@@ -494,6 +491,7 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador)
     do
     {
         novo_utilizador.ID = id_novo_utilizador;
+        //TODO Processo de seleção de escola dinámico com os dados no programa
         novo_utilizador.ID_Escola = charParaInt(validacaoCharacter("Escolha a sua escola\n2 - Escola Superior de Tecnologia e Gestão(ESTG)\n3 - Escola Superior de Turismo e Tecnologia do Mar(ESTM)", "23"));
         obterString("Insira o seu nome: ", novo_utilizador.Nome);
         novo_utilizador.NIF = obterInt("Insira o seu NIF:");
