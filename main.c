@@ -57,13 +57,13 @@ int main()
     setlocale(LC_ALL, "Portuguese");
 
     // Ficheiros
-    char caminhoCSVEscolas[] = /*"files/BIN/escolas.bin";*/"files/CSV/escolas.csv";
-    char caminhoCSVUtilizadores[] = /*"files/BIN/utilizadores.bin";*/"files/CSV/utilizadores.csv";
-    char caminhoCSVMovimentos[] = /*"files/BIN/movimentos.bin";*/"files/CSV/movimentos.csv";
+    char caminhoCSVEscolas[] = "files/CSV/escolas.csv";
+    char caminhoCSVUtilizadores[] = "files/CSV/utilizadores.csv";
+    char caminhoCSVMovimentos[] = "files/CSV/movimentos.csv";
 
-    char caminhoBinEscolas[] = "files/BIN/escolas.bin";
-    char caminhoBinUtilizadores[] = "files/BIN/utilizadores.bin";
-    char caminhoBinMovimentos[] = "files/BIN/movimentos.bin";
+    char caminhoBinEscolas[] = "files/Bin/escolas.Bin";
+    char caminhoBinUtilizadores[] = "files/Bin/utilizadores.Bin";
+    char caminhoBinMovimentos[] = "files/Bin/movimentos.Bin";
 
     // Variveis
     char resposta;
@@ -78,7 +78,7 @@ int main()
     if(validacaoBinaria("Quere importar dados dos ficheiros ao sistema?"))
     {
         system("cls");
-        importFicheiroBINUtilizadores(caminhoBinUtilizadores, utilizadores, &counter_utilizadores);
+        importFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, &counter_utilizadores);
         //importFicheiroCSVUtilizadores(caminhoCSVUtilizadores, utilizadores, &counter_utilizadores);
         importFicheiroCSVEscolas(caminhoCSVEscolas, escolas, &counter_escolas);
         importFicheiroCSVTransacoes(caminhoCSVMovimentos, movimentos, &counter_movimentos);
@@ -87,15 +87,14 @@ int main()
 
     do{
         system("cls");
-        resposta = validacaoCharacter("1 - Ver dados no sistema\n2 - Inserir Dados\nX - Sair", "12X");
+        resposta = validacaoCharacter("1 - Ver dados no sistema\n2 - Inserir Dados\n3 - Guardar dados\nX - Sair", "123X");
         switch(resposta){
             case '1':
                 switch (validacaoCharacter("U - Dados Utilizadores\nE - Dados Escolas\nM - Movimentos\nX - Sair", "UEMX"))
                 {
                 case 'U':
-                    for(index = 0;index < sizeof(utilizadores)/sizeof(utilizadores[0]);index++)
-                        if(strlen(utilizadores[index].Nome) != 0)
-                            ImprimeUtilizador(utilizadores[index]);
+                    for(index = 0;index < counter_utilizadores;index++)
+                        ImprimeUtilizador(utilizadores[index]);
                     esperarEnter();
                     break;
                 case 'E':
@@ -145,7 +144,24 @@ int main()
                     break;
                 }
                 break;
+            case '3':
+                resposta = validacaoCharacter("\nExportar como\n1 - CSV\n2 - Bin","12");
+                if(resposta == '1')
+                {
+                }
+                else if(resposta == '2')
+                {
+                    exportFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, counter_utilizadores, validacaoBinaria("Quere re-escrever os dados?"));
+                    printf("\nDados guardados");
+                    esperarEnter();
+                }
+                break;
             case 'X':
+                if(validacaoBinaria("Quere guardar os dados em sistema?")){
+                    exportFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, counter_utilizadores, validacaoBinaria("Quere re-escrever os dados?"));
+                    printf("\nDados guardados");
+                    esperarEnter();
+                }
                 break;
 
             default:
@@ -259,7 +275,7 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
         //printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
         int linha = 0, coluna = 0, index = 0;
-        contador_utilizadores = 0;
+        *contador_utilizadores = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
         {
             coluna = 0;
@@ -276,7 +292,7 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
             }
             //ImprimeUtilizador(lista_utilizadores[index]);
         }
-        *contador_utilizadores = index;
+        *contador_utilizadores = index + 1;
         // Close the file
         fclose(fileStream);
         printf("\nFinish reading file %s\n", filePath);
@@ -290,7 +306,7 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
 }
 
 // Importa os dados dos Utilizadores para o programa apartir de ficheiros Bin
-void importFicheiroBINUtilizadores(char filePath[], Utilizador lista_utilizadores[], int *contador_utilizadores)
+void importFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadores[], int *contador_utilizadores)
 {
     FILE* ficheiro = fopen(filePath, "rb");
     if (ficheiro)
@@ -310,24 +326,18 @@ void importFicheiroBINUtilizadores(char filePath[], Utilizador lista_utilizadore
 }
 
 // TODO Exporta os dados dos Utilizadores para o programa apartir de ficheiros Bin
-void exportFicheiroBINUtilizadores(char filePath[], Utilizador lista_utilizadores[], int *contador_utilizadores)
+void exportFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadores[], int contador_utilizadores, bool rescreber)
 {
-    FILE* ficheiro = fopen(filePath, "rb");
+    FILE* ficheiro = fopen(filePath, rescreber? "wb" : "ab");
     if (ficheiro)
     {
-        // Leer ficheiros Metodo 3
-        fseek(ficheiro,0L, SEEK_END);
-        *contador_utilizadores = ftell(ficheiro)/sizeof(Utilizador);
-        fseek(ficheiro,0L, SEEK_SET);
-        fread(lista_utilizadores, sizeof(Utilizador), *contador_utilizadores, ficheiro);
-
-        printf("\nDados carregados\n");
+        fwrite(lista_utilizadores, sizeof(Utilizador), contador_utilizadores, ficheiro);
+        printf("\nDados guardados.\n");
     } else {
         printf("\nError opening file: %s\n", filePath);
         perror("Error");
     }
     fclose(ficheiro);
-    esperarEnter();
 }
 
 // Importa os dados das Escolas para o programa
