@@ -150,6 +150,7 @@ int main()
                 if(resposta == '1')
                 {
                     exportFicheiroCSVUtilizadores(caminhoCSVUtilizadores, utilizadores, counter_utilizadores);
+                    exportFicheiroCSVEscolas(caminhoCSVEscolas, escolas, counter_escolas);
                     esperarEnter();
                 }
                 else if(resposta == '2')
@@ -182,6 +183,8 @@ int main()
         }
     }while(resposta != 'X');
 }
+
+//---------Funções genéricas---------//
 
 // Validacao para questoes de Sim ou Nao
 bool validacaoBinaria(char texto[])
@@ -275,6 +278,8 @@ void obterString(char text[], char *data)
     strcpy(data,input);
 }
 
+//---------Funções especificas---------//
+
 // Importa os dados dos Utilizadores para o programa apartir de ficheiros CSV
 void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadores[], int *contador_utilizadores)
 {
@@ -314,7 +319,7 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
     }
 }
 
-// Exporta os dados dos Utilizadores para o programa apartir de ficheiros CSV
+// Exporta os dados dos Utilizadores para ficheiros CSV
 void exportFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadores[], int counter_utilizadores)
 {
     FILE* ficheiro = fopen(filePath, "w");
@@ -326,7 +331,7 @@ void exportFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
                     lista_utilizadores[index].ID, lista_utilizadores[index].ID_Escola, lista_utilizadores[index].Nome,
                     lista_utilizadores[index].NIF,lista_utilizadores[index].Tipo,lista_utilizadores[index].Email,
                     lista_utilizadores[index].Valor_Conta);
-        printf("\nFicheiro %s exportado", filePath);
+        printf("\nDados exportados para %s", filePath);
     } else {
         printf("\nError opening file: %s\n", filePath);
         perror("Error");
@@ -408,6 +413,24 @@ void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int *cont
     }
 }
 
+// Exporta os dados das Escolas ficheiros CSV
+void exportFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int counter_escolas)
+{
+    FILE* ficheiro = fopen(filePath, "w");
+    int index;
+    if (ficheiro)
+    {
+        for (index = 0; index < counter_escolas;index++)
+            fprintf(ficheiro, "%d;%s;%s;%s;%s\n",
+                    lista_escolas[index].ID,lista_escolas[index].Nome,lista_escolas[index].Abreviatura,
+                    lista_escolas[index].Campus,lista_escolas[index].Localidade);
+        printf("\nDados exportados para %s", filePath);
+    } else {
+        printf("\nError opening file: %s\n", filePath);
+        perror("Error");
+    }
+    fclose(ficheiro);
+}
 // Importa os dados das Escolas para o programa apartir de ficheiros Bin
 void importFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int *contador_escolas)
 {
