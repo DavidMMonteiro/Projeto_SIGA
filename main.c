@@ -67,6 +67,7 @@ int main()
 
     // Variveis
     char resposta;
+    bool respota_saida;
     int index, index_novo_dado;
     int counter_utilizadores = 0, counter_escolas = 0, counter_movimentos = 0;
     // Dados
@@ -80,7 +81,8 @@ int main()
         system("cls");
         importFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, &counter_utilizadores);
         //importFicheiroCSVUtilizadores(caminhoCSVUtilizadores, utilizadores, &counter_utilizadores);
-        importFicheiroCSVEscolas(caminhoCSVEscolas, escolas, &counter_escolas);
+        importFicheiroBinEscolas(caminhoBinEscolas, escolas, &counter_escolas);
+        //importFicheiroCSVEscolas(caminhoCSVEscolas, escolas, &counter_escolas);
         importFicheiroCSVTransacoes(caminhoCSVMovimentos, movimentos, &counter_movimentos);
         esperarEnter();
     }
@@ -98,15 +100,13 @@ int main()
                     esperarEnter();
                     break;
                 case 'E':
-                    for(index = 0;index < sizeof(escolas)/sizeof(escolas[0]);index++)
-                        if(strlen(escolas[index].Nome) != 0)
-                            ImprimeEscola(escolas[index]);
+                    for(index = 0;index < counter_escolas;index++)
+                        ImprimeEscola(escolas[index]);
                     esperarEnter();
                     break;
                 case 'M':
-                    for(index = 0;index < sizeof(movimentos)/sizeof(movimentos[0]);index++)
-                        if(strlen(movimentos[index].Tipo) != 0)
-                            ImprimeTransacao(movimentos[index]);
+                    for(index = 0;index < counter_movimentos;index++)
+                        ImprimeTransacao(movimentos[index]);
                     esperarEnter();
                     break;
                 default:
@@ -158,8 +158,9 @@ int main()
                 break;
             case 'X':
                 if(validacaoBinaria("Quere guardar os dados em sistema?")){
-                    exportFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, counter_utilizadores, validacaoBinaria("Quere re-escrever os dados?"));
-                    printf("\nDados guardados");
+                    respota_saida = validacaoBinaria("Quere re-escrever os dados?");
+                    exportFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, counter_utilizadores, respota_saida);
+                    exportFicheiroBinEscolas(caminhoBinEscolas, escolas, counter_escolas, validacaoBinaria, respota_saida);
                     esperarEnter();
                 }
                 break;
@@ -311,7 +312,6 @@ void importFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadore
     FILE* ficheiro = fopen(filePath, "rb");
     if (ficheiro)
     {
-        // Leer ficheiros Metodo 3
         fseek(ficheiro,0L, SEEK_END);
         *contador_utilizadores = ftell(ficheiro)/sizeof(Utilizador);
         fseek(ficheiro,0L, SEEK_SET);
@@ -325,7 +325,7 @@ void importFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadore
     fclose(ficheiro);
 }
 
-// TODO Exporta os dados dos Utilizadores para o programa apartir de ficheiros Bin
+// Exporta os dados dos Utilizadores para o programa apartir de ficheiros Bin
 void exportFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadores[], int contador_utilizadores, bool rescreber)
 {
     FILE* ficheiro = fopen(filePath, rescreber? "wb" : "ab");
@@ -369,7 +369,7 @@ void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int *cont
             //ImprimeEscola(lista_escolas[index]);
             fclose(fileStream);
         }
-        *contador_escolas = index;
+        *contador_escolas = index + 1;
         // Close the file
         printf("\nFinish reading file %s\n", filePath);
     }
@@ -378,6 +378,40 @@ void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int *cont
         printf("\nError opening file: %s\n", filePath);
         perror("Error");
     }
+}
+
+// Importa os dados das Escolas para o programa apartir de ficheiros Bin
+void importFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int *contador_escolas)
+{
+    FILE* ficheiro = fopen(filePath, "rb");
+    if (ficheiro)
+    {
+        fseek(ficheiro,0L, SEEK_END);
+        *contador_escolas = ftell(ficheiro)/sizeof(Escola);
+        fseek(ficheiro,0L, SEEK_SET);
+        fread(lista_escolas, sizeof(Escola), *contador_escolas, ficheiro);
+
+        printf("\nDados carregados");
+    } else {
+        printf("\nError opening file: %s\n", filePath);
+        perror("Error");
+    }
+    fclose(ficheiro);
+}
+
+// Exporta os dados dos Utilizadores para o programa apartir de ficheiros Bin
+void exportFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int contador_escolas, bool rescreber)
+{
+    FILE* ficheiro = fopen(filePath, rescreber? "wb" : "ab");
+    if (ficheiro)
+    {
+        fwrite(lista_escolas, sizeof(Escola), contador_escolas, ficheiro);
+        printf("\nDados guardados.");
+    } else {
+        printf("\nError opening file: %s\n", filePath);
+        perror("Error");
+    }
+    fclose(ficheiro);
 }
 
 // Importa os dados das Transacoes para o programa
@@ -405,7 +439,7 @@ void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], 
             }
             //ImprimeTransacao(lista_movimentos[index]);
         }
-        *contador_movimentos = index;
+        *contador_movimentos = index + 1;
         // Close the file
         fclose(fileStream);
         printf("\nFinish reading file %s\n", filePath);
