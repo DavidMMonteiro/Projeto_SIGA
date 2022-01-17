@@ -22,6 +22,9 @@
 #include "transacao.c"
 
 #define TIPO_UTILIZADOR (char*[3]) {"Estudante","Docente","Funcionario"}
+#define MAX_UTILIZADORES 200
+#define MAX_ESCOLAS 5
+#define MAX_MOVIMENTOS 1000 //Array doesn't work with array[5000]
 
 //Funções Gerais
 
@@ -33,14 +36,14 @@ void obterString(char[], char *);
 float obterFloat(char[]);
 int obterInt(char text[]);
 int charParaInt(char);
-void obterMayusculas(char [], char *); 
+void obterMayusculas(char [], char *);
 
 //Funções específicas
 
 //void carregarFicheiro(char[]);
-void importFicheiroCSVUtilizadores(char[], Utilizador []);
-void importFicheiroCSVEscolas(char[], Escola []);
-void importFicheiroCSVTransacoes(char[], Transacao []);
+void importFicheiroCSVUtilizadores(char[], Utilizador [], int *);
+void importFicheiroCSVEscolas(char[], Escola [], int *);
+void importFicheiroCSVTransacoes(char[], Transacao [], int *);
 void guardarDadosUtilizador(char[], Utilizador*, int);
 void guardarDadosEscola(char[], Escola*, int);
 void guardarDadosTransacao(char [], Transacao*, int);
@@ -57,30 +60,28 @@ int main()
     char caminhoCSVEscolas[] = /*"files/BIN/escolas.bin";*/"files/CSV/escolas.csv";
     char caminhoCSVUtilizadores[] = /*"files/BIN/utilizadores.bin";*/"files/CSV/utilizadores.csv";
     char caminhoCSVMovimentos[] = /*"files/BIN/movimentos.bin";*/"files/CSV/movimentos.csv";
+
+    char caminhoBinEscolas[] = "files/BIN/escolas.bin";
+    char caminhoBinUtilizadores[] = "files/BIN/utilizadores.bin";
+    char caminhoBinMovimentos[] = "files/BIN/movimentos.bin";
+
     // Variveis
     char resposta;
     int index, index_novo_dado;
+    int counter_utilizadores = 0, counter_escolas = 0, counter_movimentos = 0;
     // Dados
-    Utilizador utilizadores[200];
-    Escola escolas[5];
-    Transacao movimentos[1000];//Array doesn't work if you use array[5000]
-
-    /*if(validacaoBinaria("Quere carregar os ficheiros?"))
-    {
-        system("cls");
-        carregarFicheiro(caminhoCSVEscolas);
-        carregarFicheiro(caminhoCSVUtilizadores);
-        carregarFicheiro(caminhoCSVMovimentos);
-        esperarEnter();
-    }*/
+    Utilizador utilizadores[MAX_UTILIZADORES];
+    Escola escolas[MAX_ESCOLAS];
+    Transacao movimentos[MAX_MOVIMENTOS];
 
     system("cls");
     if(validacaoBinaria("Quere importar dados dos ficheiros ao sistema?"))
     {
         system("cls");
-        importFicheiroCSVUtilizadores(caminhoCSVUtilizadores, utilizadores);
-        importFicheiroCSVEscolas(caminhoCSVEscolas, escolas);
-        importFicheiroCSVTransacoes(caminhoCSVMovimentos, movimentos);
+        importFicheiroBINUtilizadores(caminhoCSVUtilizadores, utilizadores, &counter_utilizadores);
+        //importFicheiroCSVUtilizadores(caminhoCSVUtilizadores, utilizadores, &counter_utilizadores);
+        importFicheiroCSVEscolas(caminhoCSVEscolas, escolas, &counter_escolas);
+        importFicheiroCSVTransacoes(caminhoCSVMovimentos, movimentos, &counter_movimentos);
         esperarEnter();
     }
 
@@ -93,26 +94,26 @@ int main()
                 {
                 case 'U':
                     for(index = 0;index < sizeof(utilizadores)/sizeof(utilizadores[0]);index++)
-                        if(strlen(utilizadores[index].Nome) != 0) 
+                        if(strlen(utilizadores[index].Nome) != 0)
                             ImprimeUtilizador(utilizadores[index]);
                     esperarEnter();
                     break;
                 case 'E':
                     for(index = 0;index < sizeof(escolas)/sizeof(escolas[0]);index++)
-                        if(strlen(escolas[index].Nome) != 0) 
+                        if(strlen(escolas[index].Nome) != 0)
                             ImprimeEscola(escolas[index]);
                     esperarEnter();
                     break;
                 case 'M':
                     for(index = 0;index < sizeof(movimentos)/sizeof(movimentos[0]);index++)
-                        if(strlen(movimentos[index].Tipo) != 0) 
+                        if(strlen(movimentos[index].Tipo) != 0)
                             ImprimeTransacao(movimentos[index]);
                     esperarEnter();
                     break;
                 default:
                     break;
                 }
-                break; 
+                break;
             case '2':
                 system("cls");
                 switch(validacaoCharacter("Escolha o tipo de da dados que quere inserir.\nU - Utilizador\nE - Escola\nX - Cancelar", "UEX"))
@@ -248,49 +249,8 @@ void obterString(char text[], char *data)
     strcpy(data,input);
 }
 
-/* Lee informacao dos ficheiros CSV que forem pasados
-void carregarFicheiro(char filePath[])
-{
-    FILE* fileStream = fopen(filePath, "r");
-    if (fileStream)
-    {
-        printf("\nCarregando Ficheiro %s\n\n", filePath);
-
-        char buffer[1024];
-        int linha = 0, coluna = 0;
-
-        while (fgets(buffer, sizeof(buffer), fileStream))
-        {
-            coluna = 0;
-            linha++;
-
-            //Optional to ignore the header tables
-            if (linha == 1) continue;
-            // Splitting the data
-            char* value = strtok(buffer, ";");
-            while (value)
-            {
-                printf("%s\t", value);
-                value = strtok(NULL, ";");
-                coluna++;
-            }
-            printf("\n");
-        }
-        // Fechar o ficheiro
-        fclose(fileStream);
-        printf("Finish reading file %s\n\n", filePath);
-
-    }
-    else
-    {
-        //Caso não conseguir abrir o ficheiro manda uma mensagem avisar o utilizador
-        printf("Error opening file: %s\n", filePath);
-        perror("Error");
-    }
-}*/
-
-// Importa os dados dos Utilizadores para o programa
-void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadores[])
+// Importa os dados dos Utilizadores para o programa apartir de ficheiros CSV
+void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadores[], int *contador_utilizadores)
 {
     //Utilizador lista_utilizadores[200];
     FILE* fileStream = fopen(filePath, "r");
@@ -298,16 +258,14 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
     {
         //printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
-        int linha = 0, coluna = 0;
-
+        int linha = 0, coluna = 0, index = 0;
+        contador_utilizadores = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
         {
             coluna = 0;
             linha++;
 
-            //Optional to ignore the header tables
-            if (linha == 1) continue;
-            int index = linha - 2;
+            index = linha - 1;
             // Splitting the data
             char* value = strtok(buffer, ";");
             while (value)
@@ -318,6 +276,7 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
             }
             //ImprimeUtilizador(lista_utilizadores[index]);
         }
+        *contador_utilizadores = index;
         // Close the file
         fclose(fileStream);
         printf("\nFinish reading file %s\n", filePath);
@@ -330,8 +289,35 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
     }
 }
 
+// Importa os dados dos Utilizadores para o programa apartir de ficheiros Bin
+void importFicheiroBINUtilizadores(char filePath[], Utilizador lista_utilizadores[], int *contador_utilizadores)
+{
+    FILE* ficheiro = fopen(filePath, "rb");
+    if (ficheiro)
+    {
+        // Leer ficheiros Metodo 3
+        fseek(ficheiro,0L, SEEK_END);
+        *contador_utilizadores = ftell(ficheiro)/sizeof(Utilizador);
+        fseek(ficheiro,0L, SEEK_SET);
+        fread(lista_utilizadores, sizeof(Utilizador), *contador_utilizadores, ficheiro);
+
+        printf("\nDados carregados\n");
+    } else {
+        printf("\nError opening file: %s\n", filePath);
+        perror("Error");
+    }
+    fclose(ficheiro);
+    esperarEnter();
+}
+
+// TODO Exporta os dados dos Utilizadores para o programa apartir de ficheiros Bin
+void exportFicheiroBINUtilizadores(char filePath[], Utilizador lista_utilizadores[], int *contador_utilizadores)
+{
+
+}
+
 // Importa os dados das Escolas para o programa
-void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[])
+void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int *contador_escolas)
 {
     //Escola lista_escolas[5];
     FILE* fileStream = fopen(filePath, "r");
@@ -339,14 +325,13 @@ void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[])
     {
         //printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
-        int linha = 0;
+        int linha = 0, index = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
         {
             int coluna = 0;
             linha++;
-            //Optional to ignore the header tables
-            if (linha == 1) continue;
-            int index = linha - 2;
+
+            index = linha - 1;
             // Splitting the data
             char* value = strtok(buffer, ";");
             while (value)
@@ -360,6 +345,7 @@ void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[])
             //ImprimeEscola(lista_escolas[index]);
             fclose(fileStream);
         }
+        *contador_escolas = index;
         // Close the file
         printf("\nFinish reading file %s\n", filePath);
     }
@@ -371,21 +357,20 @@ void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[])
 }
 
 // Importa os dados das Transacoes para o programa
-void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[])
+void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], int *contador_movimentos)
 {
     FILE* fileStream = fopen(filePath, "r");
     if (fileStream)
     {
         //printf("Carregando Ficheiro %s", filePath);
         char buffer[1024];
-        int linha = 0;
+        int linha = 0, index = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
         {
             int coluna = 0;
             linha++;
-            //Optional to ignore the header tables
-            if (linha == 1) continue;
-            int index = linha - 2;
+
+            index = linha - 1;
             // Splitting the data
             char* value = strtok(buffer, ";");
             while (value)
@@ -396,6 +381,7 @@ void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[])
             }
             //ImprimeTransacao(lista_movimentos[index]);
         }
+        *contador_movimentos = index;
         // Close the file
         fclose(fileStream);
         printf("\nFinish reading file %s\n", filePath);
@@ -514,7 +500,7 @@ void escolherTipoUtilizador(char *inserir_tipo)
 }
 
 // Cria uma nova escola
-void crearEscola(Escola *escola_actual) 
+void crearEscola(Escola *escola_actual)
 {
     Escola nova_escola = *escola_actual;
     system("cls");
@@ -534,10 +520,10 @@ void crearEscola(Escola *escola_actual)
 }
 
 // Obtem todas as letras mayusculas de uma string
-void obterMayusculas(char texto[], char *string_destino) 
+void obterMayusculas(char texto[], char *string_destino)
 {
     char letras_mayusculas[10] = "";
-    for(int index = 0;index < strlen(texto) ; index++) 
+    for(int index = 0;index < strlen(texto) ; index++)
         if ('A' <= texto[index] && texto[index] <= 'Z')
             strncat(letras_mayusculas, &texto[index], 1);
     strcpy(string_destino, letras_mayusculas);
