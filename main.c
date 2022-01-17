@@ -149,9 +149,12 @@ int main()
                 resposta = validacaoCharacter("\nExportar como\n1 - CSV\n2 - Bin","12");
                 if(resposta == '1')
                 {
+                    exportFicheiroCSVUtilizadores(caminhoCSVUtilizadores, utilizadores, counter_utilizadores);
+                    esperarEnter();
                 }
                 else if(resposta == '2')
                 {
+                    system("cls");
                     resposta_rewrite = validacaoBinaria("Quere re-escrever os dados?");
                     exportFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, counter_utilizadores, resposta_rewrite);
                     exportFicheiroBinEscolas(caminhoBinEscolas, escolas, counter_escolas, resposta_rewrite);
@@ -160,7 +163,9 @@ int main()
                 }
                 break;
             case 'X':
+                system("cls");
                 if(validacaoBinaria("Quere guardar os dados em sistema?")){
+                    system("cls");
                     resposta_rewrite = validacaoBinaria("Quere re-escrever os dados?");
                     exportFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, counter_utilizadores, resposta_rewrite);
                     exportFicheiroBinEscolas(caminhoBinEscolas, escolas, counter_escolas, resposta_rewrite);
@@ -301,13 +306,32 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
         // Close the file
         fclose(fileStream);
         printf("\nFinish reading file %s\n", filePath);
-
     }
     else
     {
         printf("\nError opening file: %s\n", filePath);
         perror("Error");
     }
+}
+
+// Exporta os dados dos Utilizadores para o programa apartir de ficheiros CSV
+void exportFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadores[], int counter_utilizadores)
+{
+    FILE* ficheiro = fopen(filePath, "w");
+    int index;
+    if (ficheiro)
+    {
+        for (index = 0; index < counter_utilizadores;index++)
+            fprintf(ficheiro, "%d;%d;%s;%d;%s;%s;%f\n",
+                    lista_utilizadores[index].ID, lista_utilizadores[index].ID_Escola, lista_utilizadores[index].Nome,
+                    lista_utilizadores[index].NIF,lista_utilizadores[index].Tipo,lista_utilizadores[index].Email,
+                    lista_utilizadores[index].Valor_Conta);
+        printf("\nFicheiro %s exportado", filePath);
+    } else {
+        printf("\nError opening file: %s\n", filePath);
+        perror("Error");
+    }
+    fclose(ficheiro);
 }
 
 // Importa os dados dos Utilizadores para o programa apartir de ficheiros Bin
