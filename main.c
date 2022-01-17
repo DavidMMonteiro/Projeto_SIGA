@@ -67,7 +67,7 @@ int main()
 
     // Variveis
     char resposta;
-    bool respota_saida;
+    bool resposta_rewrite;
     int index, index_novo_dado;
     int counter_utilizadores = 0, counter_escolas = 0, counter_movimentos = 0;
     // Dados
@@ -83,7 +83,8 @@ int main()
         //importFicheiroCSVUtilizadores(caminhoCSVUtilizadores, utilizadores, &counter_utilizadores);
         importFicheiroBinEscolas(caminhoBinEscolas, escolas, &counter_escolas);
         //importFicheiroCSVEscolas(caminhoCSVEscolas, escolas, &counter_escolas);
-        importFicheiroCSVTransacoes(caminhoCSVMovimentos, movimentos, &counter_movimentos);
+        importFicheiroBinTransacoes(caminhoBinMovimentos, movimentos, &counter_movimentos);
+        //importFicheiroCSVTransacoes(caminhoCSVMovimentos, movimentos, &counter_movimentos);
         esperarEnter();
     }
 
@@ -151,16 +152,19 @@ int main()
                 }
                 else if(resposta == '2')
                 {
-                    exportFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, counter_utilizadores, validacaoBinaria("Quere re-escrever os dados?"));
-                    printf("\nDados guardados");
+                    resposta_rewrite = validacaoBinaria("Quere re-escrever os dados?");
+                    exportFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, counter_utilizadores, resposta_rewrite);
+                    exportFicheiroBinEscolas(caminhoBinEscolas, escolas, counter_escolas, resposta_rewrite);
+                    exportFicheiroBinTransacoes(caminhoBinMovimentos, movimentos, counter_movimentos, resposta_rewrite);
                     esperarEnter();
                 }
                 break;
             case 'X':
                 if(validacaoBinaria("Quere guardar os dados em sistema?")){
-                    respota_saida = validacaoBinaria("Quere re-escrever os dados?");
-                    exportFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, counter_utilizadores, respota_saida);
-                    exportFicheiroBinEscolas(caminhoBinEscolas, escolas, counter_escolas, validacaoBinaria, respota_saida);
+                    resposta_rewrite = validacaoBinaria("Quere re-escrever os dados?");
+                    exportFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, counter_utilizadores, resposta_rewrite);
+                    exportFicheiroBinEscolas(caminhoBinEscolas, escolas, counter_escolas, resposta_rewrite);
+                    exportFicheiroBinTransacoes(caminhoBinMovimentos, movimentos, counter_movimentos, resposta_rewrite);
                     esperarEnter();
                 }
                 break;
@@ -317,7 +321,7 @@ void importFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadore
         fseek(ficheiro,0L, SEEK_SET);
         fread(lista_utilizadores, sizeof(Utilizador), *contador_utilizadores, ficheiro);
 
-        printf("\nDados carregados\n");
+        printf("\nFicheiro %s carregado", filePath);
     } else {
         printf("\nError opening file: %s\n", filePath);
         perror("Error");
@@ -332,7 +336,7 @@ void exportFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadore
     if (ficheiro)
     {
         fwrite(lista_utilizadores, sizeof(Utilizador), contador_utilizadores, ficheiro);
-        printf("\nDados guardados.\n");
+        printf("\nDados guardados.");
     } else {
         printf("\nError opening file: %s\n", filePath);
         perror("Error");
@@ -391,7 +395,7 @@ void importFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int *cont
         fseek(ficheiro,0L, SEEK_SET);
         fread(lista_escolas, sizeof(Escola), *contador_escolas, ficheiro);
 
-        printf("\nDados carregados");
+        printf("\nFicheiro %s carregado", filePath);
     } else {
         printf("\nError opening file: %s\n", filePath);
         perror("Error");
@@ -399,7 +403,7 @@ void importFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int *cont
     fclose(ficheiro);
 }
 
-// Exporta os dados dos Utilizadores para o programa apartir de ficheiros Bin
+// Exporta os dados das Escolas para o programa apartir de ficheiros Bin
 void exportFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int contador_escolas, bool rescreber)
 {
     FILE* ficheiro = fopen(filePath, rescreber? "wb" : "ab");
@@ -414,7 +418,7 @@ void exportFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int conta
     fclose(ficheiro);
 }
 
-// Importa os dados das Transacoes para o programa
+// Importa os dados das Transacoes para o programa apartir de ficheiros CSV
 void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], int *contador_movimentos)
 {
     FILE* fileStream = fopen(filePath, "r");
@@ -449,6 +453,40 @@ void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], 
         printf("\nError opening file: %s\n", filePath);
         perror("Error");
     }
+}
+
+// Importa os dados das Transacoes para o programa apartir de ficheiros Bin
+void importFicheiroBinTransacoes(char filePath[], Transacao lista_movimentos[], int *contador_movimentos)
+{
+    FILE* ficheiro = fopen(filePath, "rb");
+    if (ficheiro)
+    {
+        fseek(ficheiro,0L, SEEK_END);
+        *contador_movimentos = ftell(ficheiro)/sizeof(Transacao);
+        fseek(ficheiro,0L, SEEK_SET);
+        fread(lista_movimentos, sizeof(Transacao), *contador_movimentos, ficheiro);
+
+        printf("\nFicheiro %s carregado", filePath);
+    } else {
+        printf("\nError opening file: %s\n", filePath);
+        perror("Error");
+    }
+    fclose(ficheiro);
+}
+
+// Exporta os dados das Transacoes para o programa apartir de ficheiros Bin
+void exportFicheiroBinTransacoes(char filePath[], Transacao lista_movimentos[], int contador_movimentos, bool rescreber)
+{
+    FILE* ficheiro = fopen(filePath, rescreber? "wb" : "ab");
+    if (ficheiro)
+    {
+        fwrite(lista_movimentos, sizeof(Transacao), contador_movimentos, ficheiro);
+        printf("\nDados guardados.");
+    } else {
+        printf("\nError opening file: %s\n", filePath);
+        perror("Error");
+    }
+    fclose(ficheiro);
 }
 
 // Insire os dados do novo utilizador
