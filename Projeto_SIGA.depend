@@ -19,13 +19,17 @@
 	"escola.c"
 	"transacao.c"
 
-1638470044 source:c:\users\2211849\documents\github\projeto_siga\main.c
+1642432993 source:c:\users\2211849\documents\github\projeto_siga\main.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
+	<ctype.h>
 	<locale.h>
 	<stdbool.h>
 	<errno.h>
+	"utilizador.c"
+	"escola.c"
+	"transacao.c"
 
 1640101431 c:\users\david\onedrive - ipleiria\documents\github\projeto_siga\utilizador.c
 	<stdio.h>
@@ -40,6 +44,24 @@
 	<stdbool.h>
 
 1640105144 c:\users\david\onedrive - ipleiria\documents\github\projeto_siga\transacao.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+
+1642432993 c:\users\2211849\documents\github\projeto_siga\utilizador.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+
+1642432993 c:\users\2211849\documents\github\projeto_siga\escola.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdbool.h>
+
+1642432993 c:\users\2211849\documents\github\projeto_siga\transacao.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>

@@ -78,7 +78,7 @@ int main()
     if(validacaoBinaria("Quere importar dados dos ficheiros ao sistema?"))
     {
         system("cls");
-        importFicheiroBINUtilizadores(caminhoCSVUtilizadores, utilizadores, &counter_utilizadores);
+        importFicheiroBINUtilizadores(caminhoBinUtilizadores, utilizadores, &counter_utilizadores);
         //importFicheiroCSVUtilizadores(caminhoCSVUtilizadores, utilizadores, &counter_utilizadores);
         importFicheiroCSVEscolas(caminhoCSVEscolas, escolas, &counter_escolas);
         importFicheiroCSVTransacoes(caminhoCSVMovimentos, movimentos, &counter_movimentos);
@@ -307,13 +307,27 @@ void importFicheiroBINUtilizadores(char filePath[], Utilizador lista_utilizadore
         perror("Error");
     }
     fclose(ficheiro);
-    esperarEnter();
 }
 
 // TODO Exporta os dados dos Utilizadores para o programa apartir de ficheiros Bin
 void exportFicheiroBINUtilizadores(char filePath[], Utilizador lista_utilizadores[], int *contador_utilizadores)
 {
+    FILE* ficheiro = fopen(filePath, "rb");
+    if (ficheiro)
+    {
+        // Leer ficheiros Metodo 3
+        fseek(ficheiro,0L, SEEK_END);
+        *contador_utilizadores = ftell(ficheiro)/sizeof(Utilizador);
+        fseek(ficheiro,0L, SEEK_SET);
+        fread(lista_utilizadores, sizeof(Utilizador), *contador_utilizadores, ficheiro);
 
+        printf("\nDados carregados\n");
+    } else {
+        printf("\nError opening file: %s\n", filePath);
+        perror("Error");
+    }
+    fclose(ficheiro);
+    esperarEnter();
 }
 
 // Importa os dados das Escolas para o programa
