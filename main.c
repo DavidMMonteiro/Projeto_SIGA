@@ -797,7 +797,9 @@ void crearEscola(Escola *escola_actual, int *contador_escolas)
     (*contador_escolas)++;
 }
 
-//TODO Função para estadisticas
+//TODO Função criar Transação
+
+//TODO Função calcular estadísticas
 
 //TODO Função apagar utilizador
 
