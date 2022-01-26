@@ -455,18 +455,14 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
 {
     FILE *fileStream = fopen(filePath, "r");
     char buffer[1024];
-    int linha = 0, coluna = 0, index = 0;
+    int coluna, index;
     if (fileStream)
     {
-        linha = 0;
-        coluna = 0;
         index = 0;
         *contador_utilizadores = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
         {
             coluna = 0;
-            linha++;
-            index = linha - 1;
             // Dividir os dados du ficheiro CSV
             char *value = strtok(buffer, ";");
             while (value)
@@ -476,8 +472,9 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
                 value = strtok(NULL, ";");
                 coluna++;
             }
+            index++;
         }
-        *contador_utilizadores = index + 1;
+        *contador_utilizadores = index;
         // Fechar o ficheiro
         fclose(fileStream);
         printf("\nFinish reading file %s\n", filePath);
@@ -565,18 +562,15 @@ void exportFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadore
 void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int *contador_escolas)
 {
     FILE *fileStream = fopen(filePath, "r");
-    int linha = 0, index = 0, coluna = 0;
+    int index, coluna;
     // Informação do ficheiro
     char buffer[1024];
     if (fileStream)
     {
-        linha = 0;
         index = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
         {
             coluna = 0;
-            linha++;
-            index = linha - 1;
             // Dividir os dados do CSV
             char *value = strtok(buffer, ";");
             while (value)
@@ -586,11 +580,12 @@ void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int *cont
                 value = strtok(NULL, ";");
                 coluna++;
             }
+            index++;
         }
         // Fechar ficheiro
         fclose(fileStream);
         // Atribuir contagem de escolas
-        *contador_escolas = index + 1;
+        *contador_escolas = index;
         printf("\nFinish reading file %s\n", filePath);
     }
     else
@@ -676,8 +671,7 @@ void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], 
 {
     FILE *fileStream = fopen(filePath, "r");
     char buffer[1024];
-    int index = 0;
-    int coluna = 0;
+    int index, coluna = 0;
     if (fileStream)
     {
         char buffer[1024];
