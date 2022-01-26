@@ -23,6 +23,9 @@ typedef struct //Estrutura Tempo
     int Ano;
     int Mes;
     int Dia;
+    int Hora;
+    int Minuto;
+    int Segundo;
 } Tempo;
 
 typedef struct //Estrutura Utilizador
@@ -79,7 +82,7 @@ float obterFloat(char[]);
 int obterInt(char text[]);
 int charParaInt(char);
 void obterMayusculas(char[], char *);
-void obterData(Tempo *);
+void obterData_Hora(Tempo *);
 
 //---------Declaração Funções Especificas---------//
 
@@ -322,7 +325,7 @@ void ImprimeTransacao(Transacao transacao)
 {
     char informacao[1024];
 
-    snprintf(informacao, sizeof(informacao), "\nId.%d \nId Util.%d \nTipo: %s \nValor: %.2f \nData: %d-%d-%d", transacao.ID, transacao.ID_Utilizador, transacao.Tipo, transacao.Valor, transacao.Data_Hora.Dia, transacao.Data_Hora.Mes, transacao.Data_Hora.Ano);
+    snprintf(informacao, sizeof(informacao), "\nId.%d \nId Util.%d \nTipo: %s \nValor: %.2f \nData: %d-%d-%d \nHora: %d:%d:%d", transacao.ID, transacao.ID_Utilizador, transacao.Tipo, transacao.Valor, transacao.Data_Hora.Dia, transacao.Data_Hora.Mes, transacao.Data_Hora.Ano, transacao.Data_Hora.Hora, transacao.Data_Hora.Minuto, transacao.Data_Hora.Segundo);
 
     printf("%s\n", informacao);
 }
@@ -432,7 +435,7 @@ void obterMayusculas(char texto[], char *string_destino)
 }
 
 // Obtem a data e hora no systema
-void obterData(Tempo *datos_novos)
+void obterData_Hora(Tempo *datos_novos)
 {
     SYSTEMTIME time;
     Tempo datos_tmp = *datos_novos;
@@ -442,6 +445,9 @@ void obterData(Tempo *datos_novos)
     datos_tmp.Ano = time.wYear;
     datos_tmp.Mes = time.wMonth;
     datos_tmp.Dia = time.wDay;
+    datos_tmp.Hora = time.wHour;
+    datos_tmp.Minuto = time.wMinute;
+    datos_tmp.Segundo = time.wSecond;
 
     *datos_novos = datos_tmp;
 
@@ -683,6 +689,7 @@ void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], 
             char *value = strtok(buffer, ";");
             while (value)
             {
+                // TODO Ver porque não lee coluna Horas
                 // Procesamento de dados
                 guardarDadosTransacao(value, &lista_movimentos[index], coluna);
                 value = strtok(NULL, ";");
@@ -713,8 +720,8 @@ void exportFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], 
     {
         // Estruturação dos dados das structs numa string para inserir no ficheiro CSV
         for (index = 0; index < counter_movimentos; index++)
-            fprintf(ficheiro, "%d;%d;%s;%.2f;%d/%d/%d\n",
-                    lista_movimentos[index].ID, lista_movimentos[index].ID_Utilizador, lista_movimentos[index].Tipo, lista_movimentos[index].Valor, lista_movimentos[index].Data_Hora.Dia, lista_movimentos[index].Data_Hora.Mes, lista_movimentos[index].Data_Hora.Ano);
+            fprintf(ficheiro, "%d;%d;%s;%.2f;%d/%d/%d;%d:%d:%d\n",
+                    lista_movimentos[index].ID, lista_movimentos[index].ID_Utilizador, lista_movimentos[index].Tipo, lista_movimentos[index].Valor, lista_movimentos[index].Data_Hora.Dia, lista_movimentos[index].Data_Hora.Mes, lista_movimentos[index].Data_Hora.Ano, lista_movimentos[index].Data_Hora.Hora, lista_movimentos[index].Data_Hora.Minuto, lista_movimentos[index].Data_Hora.Segundo);
         printf("\nDados exportados para %s", filePath);
     }
     else
@@ -869,6 +876,28 @@ void guardarDadosTransacao(char novo_dado[], Transacao *dados_antigos, int colun
             dados_data = strtok(NULL, "/");
         }
         break;
+    case 5: // Save Tempo do movimento
+        // Divide a string do tempo
+        dados_data = strtok(novo_dado, ":");
+        // loop pelos dados do tempo
+        while (dados_data)
+        {
+            switch (index_data)
+            {
+            case 0:
+                dados_antigos->Data_Hora.Hora = atoi(dados_data);
+                break;
+            case 1:
+                dados_antigos->Data_Hora.Minuto = atoi(dados_data);
+                break;
+            case 2:
+                dados_antigos->Data_Hora.Segundo = atoi(dados_data);
+                break;
+            }
+            index_data++;
+            dados_data = strtok(NULL, ":");
+        }
+        break;
     }
 }
 
@@ -971,6 +1000,7 @@ void crearMovimento(Utilizador *utilizador, Transacao *movimento, int *contador_
         }
         else
             novo_movimento.Valor = obterFloat("Insira o valor do movimento:");
+        obterData_Hora(&novo_movimento.Data_Hora);
         system("cls");
         // Mostra o dados o utilizador antes de guardar
         ImprimeTransacao(novo_movimento);

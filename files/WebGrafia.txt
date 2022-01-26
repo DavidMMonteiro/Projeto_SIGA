@@ -1,2 +1,4 @@
 https://stackoverflow.com/questions/33510561/c-extracting-capital-letters-from-string/33510785
 https://www.geeksforgeeks.org/how-to-append-a-character-to-a-string-in-c/
+https://stackoverflow.com/questions/1442116/how-to-get-the-date-and-time-values-in-a-c-program
+https://www.educative.io/edpresso/splitting-a-string-using-strtok-in-c
