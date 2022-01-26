@@ -684,7 +684,6 @@ void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], 
         index = 0;
         while (fgets(buffer, sizeof(buffer), fileStream))
         {
-            printf("Line: %s", buffer);
             coluna = 0;
             // Dividir dados
             char *value = strtok(buffer, ";");
@@ -957,6 +956,7 @@ void crearMovimento(Utilizador *utilizador, Transacao *movimento, int *contador_
 {
     Transacao novo_movimento = *movimento;
     int valor_movimento = 0;
+    bool valor_validator = FALSE;
     system("cls");
     do
     {
@@ -967,16 +967,19 @@ void crearMovimento(Utilizador *utilizador, Transacao *movimento, int *contador_
         // Atribui o tipo de movimento
         escolherTipoMovimento(&novo_movimento.Tipo);
         // Atribui o valor do movimento
-        valor_movimento = obterFloat("Insira o valor do movimento:");
-        if (utilizador->Valor_Conta < valor_movimento && novo_movimento.Tipo == TIPO_MOVIMENTO[0])
-            printf("O utilizador %s não tem dinheiro na conta suficiente", utilizador->Nome);
+        if (novo_movimento.Tipo == TIPO_MOVIMENTO[0]){
+            do{
+                if(valor_validator)
+                    printf("O utilizador %s não tem dinheiro na conta suficiente", utilizador->Nome);
+                valor_movimento = obterFloat("Insira o valor do movimento:");
+                valor_validator = valor_movimento > utilizador->Valor_Conta;
+            }while(valor_validator);
+        }
         else
-            novo_movimento.Valor = valor_movimento;
-
+            novo_movimento.Valor = obterFloat("Insira o valor do movimento:");
         system("cls");
         // Mostra o dados o utilizador antes de guardar
         ImprimeTransacao(novo_movimento);
-        esperarEnter();
         // Permite ver o utilizador se os dados que quere inserir estão corretos
     } while (!validacaoBinaria("\nTem a sarteca que quere inserir este dados?"));
     // Guarda os dados no sistema
@@ -987,14 +990,13 @@ void crearMovimento(Utilizador *utilizador, Transacao *movimento, int *contador_
 // Função obter index do Utilizador
 int obter_index_utilizador(Utilizador lista_utilizadores[], int contador_utilizadores)
 {
-    int index = 0, index_utilizador = -1, index_pesquisa;
-
-    index_pesquisa = obterInt("Insira o numero do utilizador:");
+    int index = 0, index_utilizador = -1;
+    int user_numb = obterInt("Insira o numero do utilizador:");
     do
     {
-        printf("Im search user %d. User at Index (%d): %d.\n", index_pesquisa, index, lista_utilizadores[index].ID);
-        if (index_pesquisa == lista_utilizadores[index].ID)
-            index_pesquisa = index;
+        printf("Im search user %d. User at Index (%d): %d.\n", user_numb, index, lista_utilizadores[index].ID);
+        if (user_numb == lista_utilizadores[index].ID)
+            index_utilizador = index;
         index++;
     } while (index < contador_utilizadores && index_utilizador == -1);
 
