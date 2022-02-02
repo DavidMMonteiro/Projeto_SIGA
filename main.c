@@ -18,7 +18,7 @@
 #include <errno.h>
 #include <windows.h>
 
-typedef struct //Estrutura Tempo
+typedef struct // Estrutura Tempo
 {
     int Ano;
     int Mes;
@@ -28,7 +28,7 @@ typedef struct //Estrutura Tempo
     int Segundo;
 } Tempo;
 
-typedef struct //Estrutura Utilizador
+typedef struct // Estrutura Utilizador
 {
     int ID;
     int ID_Escola;
@@ -39,7 +39,7 @@ typedef struct //Estrutura Utilizador
     float Valor_Conta;
 } Utilizador;
 
-typedef struct //Estrutura Escola
+typedef struct // Estrutura Escola
 {
     int ID;
     char Nome[1024];
@@ -48,7 +48,7 @@ typedef struct //Estrutura Escola
     char Localidade[1024];
 } Escola;
 
-typedef struct //Estrutura de movimentos
+typedef struct // Estrutura de movimentos
 {
     int ID;
     int ID_Utilizador;
@@ -86,6 +86,8 @@ void obterData_Hora(Tempo *);
 
 //---------Declaração Funções Especificas---------//
 
+//---------Funções Importe de dados---------//
+
 void importFicheiroBinUtilizadores(char[], Utilizador[], int *);
 void importFicheiroBinEscolas(char[], Escola[], int *);
 void importFicheiroBinTransacoes(char[], Transacao[], int *);
@@ -93,12 +95,16 @@ void importFicheiroCSVUtilizadores(char[], Utilizador[], int *);
 void importFicheiroCSVEscolas(char[], Escola[], int *);
 void importFicheiroCSVTransacoes(char[], Transacao[], int *);
 
+//---------Funções Exporte de dados---------//
+
 void exportFicheiroBinUtilizadores(char[], Utilizador[], int, bool);
 void exportFicheiroBinEscolas(char[], Escola[], int, bool);
 void exportFicheiroBinTransacoes(char[], Transacao[], int, bool);
 void exportFicheiroCSVUtilizadores(char[], Utilizador[], int, bool);
 void exportFicheiroCSVEscolas(char[], Escola[], int, bool);
 void exportFicheiroCSVTransacoes(char[], Transacao[], int, bool);
+
+//---------Funções Leitura de dados CSV---------//
 
 void guardarDadosUtilizador(char[], Utilizador *, int);
 void guardarDadosEscola(char[], Escola *, int);
@@ -110,6 +116,7 @@ void crearEscola(Escola *, int *);
 void escolherTipoMovimento(char *);
 int obter_index_utilizador(Utilizador[], int);
 void crearMovimento(Utilizador *, Transacao *, int *);
+void calculoTotalFaturacao(Utilizador[], Escola[], Transacao[], int, int, int);
 
 int main()
 {
@@ -142,7 +149,7 @@ int main()
         importFicheiroBinUtilizadores(caminhoBinUtilizadores, utilizadores, &counter_utilizadores);
         // importFicheiroCSVUtilizadores(caminhoCSVUtilizadores, utilizadores, &counter_utilizadores);
         importFicheiroBinEscolas(caminhoBinEscolas, escolas, &counter_escolas);
-        //importFicheiroCSVEscolas(caminhoCSVEscolas, escolas, &counter_escolas);
+        // importFicheiroCSVEscolas(caminhoCSVEscolas, escolas, &counter_escolas);
         importFicheiroBinTransacoes(caminhoBinMovimentos, movimentos, &counter_movimentos);
         // importFicheiroCSVTransacoes(caminhoCSVMovimentos, movimentos, &counter_movimentos);
         esperarEnter();
@@ -151,32 +158,59 @@ int main()
     do
     {
         system("cls");
-        resposta = validacaoCharacter("1 - Ver dados no sistema\n2 - Inserir Dados\n3 - Guardar dados\n4 - Importar dados\nX - Sair", "1234X");
+        resposta = validacaoCharacter("1 - Ver dados no sistema\n2 - Estadisticas\n3 - Inserir Dados\n4 - Guardar dados\n5 - Importar dados\nX - Sair", "12345X");
         switch (resposta)
         {
         case '1': // Mostrar dados no sistema
             switch (validacaoCharacter("U - Dados Utilizadores\nE - Dados Escolas\nM - Movimentos\nX - Sair", "UEMX"))
             {
             case 'U': // Mostrar utilizadores
-                for (index = 0; index < counter_utilizadores; index++)
-                    ImprimeUtilizador(utilizadores[index]);
+                if (counter_utilizadores > 0)
+                    for (index = 0; index < counter_utilizadores; index++)
+                        ImprimeUtilizador(utilizadores[index]);
+                else
+                    printf("Sem registo de utilizadores");
                 esperarEnter();
                 break;
             case 'E': // Mostrar escolas
-                for (index = 0; index < counter_escolas; index++)
-                    ImprimeEscola(escolas[index]);
+                if (counter_escolas > 0)
+                    for (index = 0; index < counter_escolas; index++)
+                        ImprimeEscola(escolas[index]);
+                else
+                    printf("Sem registo de escolas");
                 esperarEnter();
                 break;
             case 'M': // Mostrar transações
-                for (index = 0; index < counter_movimentos; index++)
-                    ImprimeTransacao(movimentos[index]);
+                if (counter_movimentos > 0)
+                    for (index = 0; index < counter_movimentos; index++)
+                        ImprimeTransacao(movimentos[index]);
+                else
+                    printf("Sem registo de movimentos");
                 esperarEnter();
                 break;
             default:
                 break;
             }
             break;
-        case '2': // Inserir um novo registo
+        case '2': // Ver as estadísticas do sistema
+            system("cls");
+            switch (validacaoCharacter("Insira o tipo de dados que quere visualizar:\n1 - Total faturado por escola\n2 - Percentegam de transacoes por escola\n3 - Total de transacoes\nX - Sair", "123X"))
+            {
+            case '1': // Vai mostrar a faturação por escola
+                calculoTotalFaturacao(utilizadores, escolas, movimentos, counter_utilizadores, counter_escolas, counter_movimentos);
+                break;
+            case '2':
+                /* code */
+                break;
+            case '3':
+                /* code */
+                break;
+
+            default:
+                break;
+            }
+            break;
+        case '3': // Inserir um novo registo
             system("cls");
             switch (validacaoCharacter("Escolha o tipo de da dados que quere inserir.\nU - Utilizador\nE - Escola\nM - Movimento\nX - Cancelar", "UEMX"))
             {
@@ -209,7 +243,7 @@ int main()
                     crearEscola(&escolas[index_novo_dado], &counter_escolas);
 
                 break;
-            case 'M': //Insire um novo movimento
+            case 'M': // Insire um novo movimento
                 index_utilizador = obter_index_utilizador(utilizadores, counter_utilizadores);
                 if (index_utilizador < 0)
                 {
@@ -229,7 +263,7 @@ int main()
                 break;
             }
             break;
-        case '3': // Exportação de dados
+        case '4': // Exportação de dados
             switch (validacaoCharacter("\nExportar como\n1 - CSV\n2 - Bin\nX - Sair", "12X"))
             {
             case '1': // Exportação para ficheiro CSV
@@ -250,7 +284,7 @@ int main()
                 break;
             }
             break;
-        case '4': // Importação de ficheiros
+        case '5': // Importação de ficheiros
             switch (validacaoCharacter("\nImportar ficheiro\n1 - CSV\n2 - Bin\nX - Sair", "12X"))
             {
             case '1': // Importar ficheiro CSV
@@ -451,7 +485,7 @@ void obterData_Hora(Tempo *datos_novos)
 
     *datos_novos = datos_tmp;
 
-    //printf("Year: %d, Month: %d, Day: %d, Hour: %d, Minute:%d, Second: %d, Millisecond: %d", time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond, time.wMilliseconds);
+    // printf("Year: %d, Month: %d, Day: %d, Hour: %d, Minute:%d, Second: %d, Millisecond: %d", time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond, time.wMilliseconds);
 }
 
 //---------Funções especificas---------//
@@ -496,6 +530,9 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
 // Exporta os dados dos Utilizadores para ficheiros CSV
 void exportFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadores[], int counter_utilizadores, bool rescreber)
 {
+    // Vai validar se existem informação a ser guardada
+    if (counter_utilizadores <= 0)
+        return;
     FILE *ficheiro = fopen(filePath, rescreber ? "w" : "a");
     int index;
     if (ficheiro)
@@ -546,6 +583,9 @@ void importFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadore
 // Exporta os dados dos Utilizadores para o programa apartir de ficheiros Bin
 void exportFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadores[], int contador_utilizadores, bool rescreber)
 {
+    // Vai validar se existem informação a ser guardada
+    if (contador_utilizadores <= 0)
+        return;
     // Seleção de tipo de abertura de ficheiro feito pelo o utilizador
     // Ira permitir rescrever ou acrescentar os dados do ficheiro
     FILE *ficheiro = fopen(filePath, rescreber ? "wb" : "ab");
@@ -605,6 +645,9 @@ void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int *cont
 // Exporta os dados das Escolas ficheiros CSV
 void exportFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int counter_escolas, bool rescreber)
 {
+    // Vai validar se existem informação a ser guardada
+    if (counter_escolas <= 0)
+        return;
     FILE *ficheiro = fopen(filePath, rescreber ? "w" : "a");
     int index;
     if (ficheiro)
@@ -654,6 +697,9 @@ void importFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int *cont
 // Exporta os dados das Escolas para o programa apartir de ficheiros Bin
 void exportFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int contador_escolas, bool rescreber)
 {
+    // Vai validar se existem informação a ser guardada
+    if (contador_escolas <= 0)
+        return;
     // Seleção de tipo de abertura de ficheiro feito pelo o utilizador
     // Ira permitir rescrever ou acrescentar os dados do ficheiro
     FILE *ficheiro = fopen(filePath, rescreber ? "wb" : "ab");
@@ -714,6 +760,9 @@ void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], 
 // Exporta os dados das transações ficheiros CSV
 void exportFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], int counter_movimentos, bool rescreber)
 {
+    // Vai validar se existem informação a ser guardada
+    if (counter_movimentos <= 0)
+        return;
     FILE *ficheiro = fopen(filePath, rescreber ? "w" : "a");
     int index;
     if (ficheiro)
@@ -763,6 +812,9 @@ void importFicheiroBinTransacoes(char filePath[], Transacao lista_movimentos[], 
 // Exporta os dados das Transacoes para o programa apartir de ficheiros Bin
 void exportFicheiroBinTransacoes(char filePath[], Transacao lista_movimentos[], int contador_movimentos, bool rescreber)
 {
+    // Vai validar se existem informação a ser guardada
+    if (contador_movimentos <= 0)
+        return;
     // Seleção de tipo de abertura de ficheiro feito pelo o utilizador
     // Ira permitir rescrever ou acrescentar os dados do ficheiro
     FILE *ficheiro = fopen(filePath, rescreber ? "wb" : "ab");
@@ -906,6 +958,7 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int 
 {
     // Faz uma copia do utilizador pasado por referencia
     Utilizador novo_utilizador = *utilizador_actual;
+    char resposta;
     system("cls");
     do
     {
@@ -929,10 +982,20 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int 
         ImprimeUtilizador(novo_utilizador);
         esperarEnter();
         // Permite ver o utilizador se os dados que quere inserir estão corretos
-    } while (!validacaoBinaria("\nTem a sarteca que quere inserir este dados?"));
-    // Guarda os dados no sistema
-    *utilizador_actual = novo_utilizador;
-    (*contador_utilizadores)++;
+        resposta = validacaoCharacter("\nTem a certeza que quere inserir estes dados?\nY-Sim\nN-Nao\nX-Cancelar novo registo", "YNX");
+    } while (resposta == 'N');
+    if (resposta == 'Y')
+    {
+        // Guarda os dados no sistema
+        *utilizador_actual = novo_utilizador;
+        (*contador_utilizadores)++;
+    }
+    else
+    {
+        system("cls");
+        printf("Novo movimento cancelado");
+        esperarEnter();
+    }
 }
 
 // Função pede ao utilizador insira un tipo de utilizador
@@ -949,12 +1012,15 @@ void crearEscola(Escola *escola_actual, int *contador_escolas)
 {
     // Faz uma copia da escola pasado por referencia
     Escola nova_escola = *escola_actual;
+    char resposta;
     system("cls");
     do
     {
         // Atribui uma nova id
-        //TODO ID automática
-        nova_escola.ID = obterInt("Insira Id da nova escola: ");
+        if (validacaoBinaria("Quere inserir a id manualmente?"))
+            nova_escola.ID = obterInt("Insira Id da nova escola: ");
+        else
+            nova_escola.ID = contador_escolas + 1;
         // Atribui o nome da escola
         obterString("Insira o nome da nova escola: ", &nova_escola.Nome);
         // Atribui a abreviatura do nome da escola
@@ -968,18 +1034,30 @@ void crearEscola(Escola *escola_actual, int *contador_escolas)
         ImprimeEscola(nova_escola);
         esperarEnter();
         // Permite ver ao utilizador se os dados que quere inserir estão corretos
-    } while (!validacaoBinaria("\nTem a sarteca que quere inserir este dados?"));
-    // Guarda os dados no sistema
-    *escola_actual = nova_escola;
-    (*contador_escolas)++;
+        resposta = validacaoCharacter("\nTem a certeza que quere inserir estes dados?\nY-Sim\nN-Nao\nX-Cancelar novo registo", "YNX");
+    } while (resposta == 'N');
+
+    if (resposta == 'Y')
+    {
+        // Guarda os dados no sistema
+        *escola_actual = nova_escola;
+        (*contador_escolas)++;
+    }
+    else
+    {
+        system("cls");
+        printf("Nova escola cancelado");
+        esperarEnter();
+    }
 }
 
-//TODO Função criar Transação
+// Função criar Transação
 void crearMovimento(Utilizador *utilizador, Transacao *movimento, int *contador_movimentos)
 {
     Transacao novo_movimento = *movimento;
     int valor_movimento = 0;
     bool valor_validator = FALSE;
+    char resposta;
     system("cls");
     do
     {
@@ -990,13 +1068,15 @@ void crearMovimento(Utilizador *utilizador, Transacao *movimento, int *contador_
         // Atribui o tipo de movimento
         escolherTipoMovimento(&novo_movimento.Tipo);
         // Atribui o valor do movimento
-        if (novo_movimento.Tipo == TIPO_MOVIMENTO[0]){
-            do{
-                if(valor_validator)
+        if (novo_movimento.Tipo == TIPO_MOVIMENTO[0])
+        {
+            do
+            {
+                if (valor_validator)
                     printf("O utilizador %s não tem dinheiro na conta suficiente", utilizador->Nome);
                 valor_movimento = obterFloat("Insira o valor do movimento:");
                 valor_validator = valor_movimento > utilizador->Valor_Conta;
-            }while(valor_validator);
+            } while (valor_validator);
         }
         else
             novo_movimento.Valor = obterFloat("Insira o valor do movimento:");
@@ -1005,10 +1085,21 @@ void crearMovimento(Utilizador *utilizador, Transacao *movimento, int *contador_
         // Mostra o dados o utilizador antes de guardar
         ImprimeTransacao(novo_movimento);
         // Permite ver o utilizador se os dados que quere inserir estão corretos
-    } while (!validacaoBinaria("\nTem a sarteca que quere inserir este dados?"));
-    // Guarda os dados no sistema
-    *movimento = novo_movimento;
-    (*contador_movimentos)++;
+        resposta = validacaoCharacter("\nTem a certeza que quere inserir estes dados?\nY-Sim\nN-Nao\nX-Cancelar novo registo", "YNX");
+    } while (resposta == 'N');
+
+    if (resposta == 'Y')
+    {
+        // Guarda os dados no sistema
+        *movimento = novo_movimento;
+        (*contador_movimentos)++;
+    }
+    else
+    {
+        system("cls");
+        printf("Novo movimento cancelado");
+        esperarEnter();
+    }
 }
 
 // Função obter index do Utilizador
@@ -1036,10 +1127,38 @@ void escolherTipoMovimento(char *string_movimento)
     strcpy(string_movimento, TIPO_MOVIMENTO[charParaInt(validacaoCharacter(texto, valoresValidos) - 1)]);
 }
 
-//TODO Função calcular estadísticas
+// Função total de faturação por escola
+void calculoTotalFaturacao(Utilizador lista_utilizadores[], Escola lista_escolas[], Transacao lista_movimentos[], int contador_utilizadores, int contador_escolas, int contador_movimentos)
+{
+    float valor_faturacao;
+    int index_escola, index_utilizador, index_movimentos;
+    system("cls");
+    printf("Faturacao das escolas");
+    // Vai procesar cada escola registada
+    for (index_escola = 0; index_escola < contador_escolas; index_escola++)
+    {
+        // Reinicia o valor de faturação da escola
+        valor_faturacao = 0;
+        // Vai procesar os movimentos registados
+        for (index_movimentos = 0; index_movimentos < contador_movimentos; index_movimentos++)
+        {
+            // Vair procesar os utilizadores resgistados
+            for (index_utilizador = 0; index_utilizador < contador_utilizadores; index_utilizador++)
+            {
+                // Verifica a escola do utilizador, os moviemntos do utilizador e tipo de movimento 
+                if (lista_utilizadores[index_utilizador].ID_Escola == lista_escolas[index_escola].ID && lista_movimentos[index_movimentos].ID_Utilizador == lista_utilizadores[index_utilizador].ID && !strcmp(lista_movimentos[index_movimentos].Tipo,TIPO_MOVIMENTO[0]))
+                    valor_faturacao += lista_movimentos[index_movimentos].Valor;
+                    
+            }
+        }
+        // Mostra informação da escola
+        printf("\nTotal faturado pela escola %s: %.2f euros", lista_escolas[index_escola].Nome, valor_faturacao);
+    }
+    esperarEnter();
+}
 
-//TODO Função apagar utilizador
+// TODO Função apagar utilizador
 
-//TODO Função apagar Escola
+// TODO Função apagar Escola
 
-//TODO Função apagar Transação
+// TODO Função apagar Transação
