@@ -83,6 +83,9 @@ int obterInt(char text[]);
 int charParaInt(char);
 void obterMayusculas(char[], char *);
 void obterData_Hora(Tempo *);
+float calculoPercentagem(int , int );
+int pedirTipoMovimento();
+int pedirTipoUtilizador();
 
 //---------Declaração Funções Especificas---------//
 
@@ -117,6 +120,10 @@ void escolherTipoMovimento(char *);
 int obter_index_utilizador(Utilizador[], int);
 void crearMovimento(Utilizador *, Transacao *, int *);
 void calculoTotalFaturacao(Utilizador[], Escola[], Transacao[], int, int, int);
+void calculoPercentagemMovimentos(Utilizador[], Escola[], Transacao[], int, int, int);
+void calculoTotalUtilizadorEntreDatas(Utilizador [], Escola [], Transacao [], int , int , int);
+
+//---------------------------------------------//
 
 int main()
 {
@@ -199,11 +206,11 @@ int main()
             case '1': // Vai mostrar a faturação por escola
                 calculoTotalFaturacao(utilizadores, escolas, movimentos, counter_utilizadores, counter_escolas, counter_movimentos);
                 break;
-            case '2':
-                /* code */
+            case '2': // Vai mostrar a percentagem de movimentos por escola
+                calculoPercentagemMovimentos(utilizadores, escolas, movimentos, counter_utilizadores, counter_escolas, counter_movimentos);
                 break;
-            case '3':
-                /* code */
+            case '3':// Vai mostrar o total de movimentos, entre duas datas, em função do tipo de utilizador 
+                calculoTotalUtilizadorEntreDatas(utilizadores, escolas, movimentos, counter_utilizadores, counter_escolas, counter_movimentos);
                 break;
 
             default:
@@ -486,6 +493,42 @@ void obterData_Hora(Tempo *datos_novos)
     *datos_novos = datos_tmp;
 
     // printf("Year: %d, Month: %d, Day: %d, Hour: %d, Minute:%d, Second: %d, Millisecond: %d", time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond, time.wMilliseconds);
+}
+
+// Calcula a porcentagem de um valor em função do numero de elementos
+float calculoPercentagem(int valor_original, int numero_elementos)
+{
+    return numero_elementos > 0 && valor_original > 0 ? (valor_original * 100) / numero_elementos : 0.00;
+}
+
+// Vai pedir au utilizador escolher um dos tipos de movimento da variavel global TIPO_MOVIMENTO 
+int pedirTipoMovimento(){
+    char texto[1024] = "Tipo de movimento:", tmp_texto[1024];
+    char opcoes[255], tmp_opcao[15] = "";
+    int index = 0;
+
+    for (index = 0; index < (int)( sizeof(TIPO_MOVIMENTO) / sizeof(TIPO_MOVIMENTO[0]) );index++ ) {
+        itoa((index+1), tmp_opcao, 10);
+        strcat(opcoes, tmp_opcao);
+        snprintf(tmp_texto, sizeof(tmp_texto), "\n\t%d - %s", index + 1, TIPO_MOVIMENTO[index]);
+        strcat(texto, tmp_texto);
+    }
+    return charParaInt(validacaoCharacter(texto, opcoes)) -1 ;
+}
+
+// Vai pedir au utilizador escolher um dos tipos de utilizdor da variavel global TIPO_UTILIZADOR 
+int pedirTipoUtilizador(){
+    char texto[1024] = "Tipo de utilizador:", tmp_texto[1024];
+    char opcoes[255], tmp_opcao[15] = "";
+    int index = 0;
+
+    for (index = 0; index < (int)( sizeof(TIPO_UTILIZADOR) / sizeof(TIPO_UTILIZADOR[0]) );index++ ) {
+        itoa((index+1), tmp_opcao, 10);
+        strcat(opcoes, tmp_opcao);
+        snprintf(tmp_texto, sizeof(tmp_texto), "\n\t%d - %s", index + 1, TIPO_UTILIZADOR[index]);
+        strcat(texto, tmp_texto);
+    }
+    return charParaInt(validacaoCharacter(texto, opcoes)) -1 ;
 }
 
 //---------Funções especificas---------//
@@ -966,7 +1009,7 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int 
         novo_utilizador.ID = id_novo_utilizador;
         // TODO Processo de seleção de escola dinámico com os dados no programa
         // Atribui a escola escolhida pelo utilizador
-        novo_utilizador.ID_Escola = charParaInt(validacaoCharacter("Escolha a sua escola\n2 - Escola Superior de Tecnologia e Gestão(ESTG)\n3 - Escola Superior de Turismo e Tecnologia do Mar(ESTM)", "23"));
+        novo_utilizador.ID_Escola = pedirTipoUtilizador();
         // Atribui o nome inserido pelo utilizador
         obterString("Insira o seu nome: ", novo_utilizador.Nome);
         // Atribui o NIF inserido pelo utilizador
@@ -1145,10 +1188,9 @@ void calculoTotalFaturacao(Utilizador lista_utilizadores[], Escola lista_escolas
             // Vair procesar os utilizadores resgistados
             for (index_utilizador = 0; index_utilizador < contador_utilizadores; index_utilizador++)
             {
-                // Verifica a escola do utilizador, os moviemntos do utilizador e tipo de movimento 
-                if (lista_utilizadores[index_utilizador].ID_Escola == lista_escolas[index_escola].ID && lista_movimentos[index_movimentos].ID_Utilizador == lista_utilizadores[index_utilizador].ID && !strcmp(lista_movimentos[index_movimentos].Tipo,TIPO_MOVIMENTO[0]))
+                // Verifica a escola do utilizador, os moviemntos do utilizador e tipo de movimento
+                if (lista_utilizadores[index_utilizador].ID_Escola == lista_escolas[index_escola].ID && lista_movimentos[index_movimentos].ID_Utilizador == lista_utilizadores[index_utilizador].ID && !strcmp(lista_movimentos[index_movimentos].Tipo, TIPO_MOVIMENTO[0]))
                     valor_faturacao += lista_movimentos[index_movimentos].Valor;
-                    
             }
         }
         // Mostra informação da escola
@@ -1157,8 +1199,72 @@ void calculoTotalFaturacao(Utilizador lista_utilizadores[], Escola lista_escolas
     esperarEnter();
 }
 
-// TODO Função apagar utilizador
+// Função calcular percentagem de tipo de movimentos
+void calculoPercentagemMovimentos(Utilizador lista_utilizadores[], Escola lista_escolas[], Transacao lista_movimentos[], int contador_utilizadores, int contador_escolas, int contador_movimentos)
+{
+    int contador_pagamento = 0, contador_carregamento = 0, contador_movimentos_escola = 0;
+    int index_escola, index_utilizador, index_movimentos;
+    system("cls");
+    printf("Percentagem de movimentos das escolas");
+    // Vai procesar cada escola registada
+    for (index_escola = 0; index_escola < contador_escolas; index_escola++)
+    {
+        contador_movimentos_escola = 0;
+        contador_pagamento = 0;
+        contador_carregamento = 0;
+        // Vai procesar os movimentos registados
+        for (index_movimentos = 0; index_movimentos < contador_movimentos; index_movimentos++)
+        {
+            // Vair procesar os utilizadores resgistados
+            for (index_utilizador = 0; index_utilizador < contador_utilizadores; index_utilizador++)
+            {
+                // Verifica a escola do utilizador, os moviemntos do utilizador e tipo de movimento
+                if (lista_utilizadores[index_utilizador].ID_Escola == lista_escolas[index_escola].ID && lista_movimentos[index_movimentos].ID_Utilizador == lista_utilizadores[index_utilizador].ID)
+                {
+                    contador_movimentos_escola += 1;
+                    if (!strcmp(lista_movimentos[index_movimentos].Tipo, TIPO_MOVIMENTO[0]))
+                        contador_pagamento += 1;
+                    else
+                        contador_carregamento += 1;
+                }
+            }
+        }
+        // Mostra informação da escola
+        printf("\n\nPercentagem movimentos escola %s", lista_escolas[index_escola].Nome);
+        printf("\n\tPercentagem pagamentos: %.2f %%", calculoPercentagem(contador_pagamento, contador_movimentos_escola));
+        printf("\n\tPercentagem carregamento: %.2f %%", calculoPercentagem(contador_carregamento, contador_movimentos_escola));
+    }
+    esperarEnter();
+}
 
-// TODO Função apagar Escola
-
-// TODO Função apagar Transação
+// Função para calcular total de pagamentos entre duas datas por tipo de utilizador
+void calculoTotalUtilizadorEntreDatas(Utilizador lista_utilizadores[], Escola lista_escolas[], Transacao lista_movimentos[], int contador_utilizadores, int contador_escolas, int contador_movimentos)
+{
+    int valor_faturacao = 0;
+    int index_escola, index_utilizador, index_movimentos;
+    int tipo_movimento, tipo_utilizador;
+    Tempo data_inicial, data_final;
+    tipo_movimento = pedirTipoMovimento();
+    tipo_utilizador = pedirTipoUtilizador();
+    system("cls");
+    // Vai procesar cada escola registada
+    for (index_escola = 0; index_escola < contador_escolas; index_escola++)
+    {
+        valor_faturacao = 0;
+        // Vai procesar os movimentos registados
+        for (index_movimentos = 0; index_movimentos < contador_movimentos; index_movimentos++)
+        {
+            // Vair procesar os utilizadores resgistados
+            for (index_utilizador = 0; index_utilizador < contador_utilizadores; index_utilizador++)
+            {
+                // Verifica a escola do utilizador, os moviemntos do utilizador e tipo de movimento
+                if (lista_utilizadores[index_utilizador].ID_Escola == lista_escolas[index_escola].ID && lista_movimentos[index_movimentos].ID_Utilizador == lista_utilizadores[index_utilizador].ID)
+                {
+                    
+                }
+            }
+        }
+        // Mostra informação da escola
+    }
+    esperarEnter();
+}
