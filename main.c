@@ -70,6 +70,7 @@ typedef struct // Estrutura de movimentos
 void ImprimeUtilizador(Utilizador);
 void ImprimeEscola(Escola);
 void ImprimeTransacao(Transacao);
+void ImprimeTempo(Tempo);
 
 //---------Declaração Funções Gerais---------//
 
@@ -83,10 +84,12 @@ int obterInt(char text[]);
 int charParaInt(char);
 void obterMayusculas(char[], char *);
 void obterData_Hora(Tempo *);
-float calculoPercentagem(int , int );
+float calculoPercentagem(int, int);
 int pedirTipoMovimento();
 int pedirTipoUtilizador();
-
+Tempo obterDataInicial();
+Tempo obterDataFinal();
+bool validarData(Tempo, Tempo, Tempo);
 //---------Declaração Funções Especificas---------//
 
 //---------Funções Importe de dados---------//
@@ -121,7 +124,7 @@ int obter_index_utilizador(Utilizador[], int);
 void crearMovimento(Utilizador *, Transacao *, int *);
 void calculoTotalFaturacao(Utilizador[], Escola[], Transacao[], int, int, int);
 void calculoPercentagemMovimentos(Utilizador[], Escola[], Transacao[], int, int, int);
-void calculoTotalUtilizadorEntreDatas(Utilizador [], Escola [], Transacao [], int , int , int);
+void calculoTotalUtilizadorEntreDatas(Utilizador[], Escola[], Transacao[], int, int, int);
 
 //---------------------------------------------//
 
@@ -209,7 +212,7 @@ int main()
             case '2': // Vai mostrar a percentagem de movimentos por escola
                 calculoPercentagemMovimentos(utilizadores, escolas, movimentos, counter_utilizadores, counter_escolas, counter_movimentos);
                 break;
-            case '3':// Vai mostrar o total de movimentos, entre duas datas, em função do tipo de utilizador 
+            case '3': // Vai mostrar o total de movimentos, entre duas datas, em função do tipo de utilizador
                 calculoTotalUtilizadorEntreDatas(utilizadores, escolas, movimentos, counter_utilizadores, counter_escolas, counter_movimentos);
                 break;
 
@@ -371,6 +374,16 @@ void ImprimeTransacao(Transacao transacao)
     printf("%s\n", informacao);
 }
 
+// Imprime os dados do tempo inserido
+void ImprimeTempo(Tempo time)
+{
+    char informacao[1024];
+
+    snprintf(informacao, sizeof(informacao), "\n%d/%d/%d %d:%d:%d", time.Dia, time.Mes, time.Ano, time.Hora, time.Minuto, time.Minuto);
+
+    printf("%s\n", informacao);
+}
+
 //---------Funções genéricas---------//
 
 // Validacao para questoes de Sim ou Nao
@@ -420,7 +433,6 @@ float obterFloat(char text[])
 int obterInt(char text[])
 {
     int valor;
-    system("cls");
     printf(text);
     fflush(stdin);
     scanf(" %d", &valor);
@@ -501,35 +513,40 @@ float calculoPercentagem(int valor_original, int numero_elementos)
     return numero_elementos > 0 && valor_original > 0 ? (valor_original * 100) / numero_elementos : 0.00;
 }
 
-// Vai pedir au utilizador escolher um dos tipos de movimento da variavel global TIPO_MOVIMENTO 
-int pedirTipoMovimento(){
+// Vai pedir au utilizador escolher um dos tipos de movimento da variavel global TIPO_MOVIMENTO
+int pedirTipoMovimento()
+{
     char texto[1024] = "Tipo de movimento:", tmp_texto[1024];
     char opcoes[255], tmp_opcao[15] = "";
     int index = 0;
 
-    for (index = 0; index < (int)( sizeof(TIPO_MOVIMENTO) / sizeof(TIPO_MOVIMENTO[0]) );index++ ) {
-        itoa((index+1), tmp_opcao, 10);
+    for (index = 0; index < (int)(sizeof(TIPO_MOVIMENTO) / sizeof(TIPO_MOVIMENTO[0])); index++)
+    {
+        itoa((index + 1), tmp_opcao, 10);
         strcat(opcoes, tmp_opcao);
         snprintf(tmp_texto, sizeof(tmp_texto), "\n\t%d - %s", index + 1, TIPO_MOVIMENTO[index]);
         strcat(texto, tmp_texto);
     }
-    return charParaInt(validacaoCharacter(texto, opcoes)) -1 ;
+    return charParaInt(validacaoCharacter(texto, opcoes)) - 1;
 }
 
-// Vai pedir au utilizador escolher um dos tipos de utilizdor da variavel global TIPO_UTILIZADOR 
-int pedirTipoUtilizador(){
+// Vai pedir au utilizador escolher um dos tipos de utilizdor da variavel global TIPO_UTILIZADOR
+int pedirTipoUtilizador()
+{
     char texto[1024] = "Tipo de utilizador:", tmp_texto[1024];
     char opcoes[255], tmp_opcao[15] = "";
     int index = 0;
 
-    for (index = 0; index < (int)( sizeof(TIPO_UTILIZADOR) / sizeof(TIPO_UTILIZADOR[0]) );index++ ) {
-        itoa((index+1), tmp_opcao, 10);
+    for (index = 0; index < (int)(sizeof(TIPO_UTILIZADOR) / sizeof(TIPO_UTILIZADOR[0])); index++)
+    {
+        itoa((index + 1), tmp_opcao, 10);
         strcat(opcoes, tmp_opcao);
         snprintf(tmp_texto, sizeof(tmp_texto), "\n\t%d - %s", index + 1, TIPO_UTILIZADOR[index]);
         strcat(texto, tmp_texto);
     }
-    return charParaInt(validacaoCharacter(texto, opcoes)) -1 ;
+    return charParaInt(validacaoCharacter(texto, opcoes)) - 1;
 }
+
 
 //---------Funções especificas---------//
 
@@ -1240,31 +1257,194 @@ void calculoPercentagemMovimentos(Utilizador lista_utilizadores[], Escola lista_
 // Função para calcular total de pagamentos entre duas datas por tipo de utilizador
 void calculoTotalUtilizadorEntreDatas(Utilizador lista_utilizadores[], Escola lista_escolas[], Transacao lista_movimentos[], int contador_utilizadores, int contador_escolas, int contador_movimentos)
 {
-    int valor_faturacao = 0;
+    int valor_total = 0;
     int index_escola, index_utilizador, index_movimentos;
     int tipo_movimento, tipo_utilizador;
     Tempo data_inicial, data_final;
     tipo_movimento = pedirTipoMovimento();
     tipo_utilizador = pedirTipoUtilizador();
     system("cls");
-    // Vai procesar cada escola registada
-    for (index_escola = 0; index_escola < contador_escolas; index_escola++)
+    data_inicial = obterDataInicial();
+    do
     {
-        valor_faturacao = 0;
+        system("cls");
+        data_final = obterDataFinal();
+    } while (data_final.Ano < data_inicial.Ano);
+
+    system("cls");
+    printf("Data inicial: %d/%d/%d\n", data_inicial.Dia, data_inicial.Mes, data_inicial.Ano);
+    printf("Data Final: %d/%d/%d\n", data_final.Dia, data_final.Mes, data_final.Ano);
+
+    // Vair procesar os utilizadores resgistados
+    for (index_utilizador = 0; index_utilizador < contador_utilizadores; index_utilizador++)
+    {
         // Vai procesar os movimentos registados
         for (index_movimentos = 0; index_movimentos < contador_movimentos; index_movimentos++)
         {
-            // Vair procesar os utilizadores resgistados
-            for (index_utilizador = 0; index_utilizador < contador_utilizadores; index_utilizador++)
+            // Verifica a escola do utilizador, os moviemntos do utilizador e tipo de movimento
+            if (lista_movimentos[index_movimentos].ID_Utilizador == lista_utilizadores[index_utilizador].ID &&
+                strcmp(lista_movimentos[index_movimentos].Tipo, TIPO_MOVIMENTO[tipo_movimento]) &&
+                strcmp(lista_utilizadores[index_utilizador].Tipo, TIPO_UTILIZADOR[tipo_utilizador]) &&
+                validarData(lista_movimentos[index_movimentos].Data_Hora, data_inicial, data_final))
             {
-                // Verifica a escola do utilizador, os moviemntos do utilizador e tipo de movimento
-                if (lista_utilizadores[index_utilizador].ID_Escola == lista_escolas[index_escola].ID && lista_movimentos[index_movimentos].ID_Utilizador == lista_utilizadores[index_utilizador].ID)
-                {
-                    
-                }
+                valor_total += lista_movimentos[index_movimentos].Valor;
             }
         }
-        // Mostra informação da escola
     }
+    printf("Valor total dos %s dos %s: %.2f", TIPO_MOVIMENTO[tipo_movimento], TIPO_UTILIZADOR[tipo_utilizador], valor_total);
     esperarEnter();
+}
+
+// Pede os valores de data inicial
+// TODO Check filters
+Tempo obterDataInicial()
+{
+    SYSTEMTIME time;
+    Tempo tmp_data;
+    bool validator = false;
+    char texto[1024] = "";
+
+    // Obte a informação da data atual
+    GetLocalTime(&time);
+    do
+    {
+        system("cls");
+        printf("Insira os dados da data inicial");
+        strcpy(texto, "\nInsira um ano:");
+        // Pede o ano
+        do
+        {
+            if (validator)
+                strcpy(texto, "\nInsira um ano valido:");
+            tmp_data.Ano = obterInt(texto);
+            // Validação dos dados
+            validator = !(tmp_data.Ano >= time.wYear);
+        } while (validator);
+
+        validator = false;
+        strcpy(texto, "\nInsira um ano:");
+        // Pede o mes
+        do
+        {
+            if (validator)
+                strcpy(texto, "\nInsira um mes valido:");
+            tmp_data.Mes = obterInt(texto);
+            // Validação dos dados
+            validator = !((tmp_data.Mes >= time.wMonth && tmp_data.Ano == time.wYear) || (tmp_data.Ano > time.wYear && tmp_data.Mes <= 12));
+        } while (validator);
+
+        validator = false;
+        strcpy(texto, "\nInsira um dia:");
+        // Pede o dia
+        do
+        {
+            if (validator)
+                strcpy(texto, "\nInsira um dia valido:");
+            tmp_data.Dia = obterInt(texto);
+            // Validação dos dados
+            validator = !((tmp_data.Dia >= time.wDay && tmp_data.Mes == time.wMonth && tmp_data.Ano == time.wYear) || (tmp_data.Ano > time.wYear && tmp_data.Dia <= 30));
+        } while (validator);
+
+        // Inicializa os valores do tempo
+        tmp_data.Hora = 0;
+        tmp_data.Minuto = 0;
+        tmp_data.Segundo = 0;
+
+        // Mostra a informação ao utilizador
+        system("cls");
+        printf("Data inserida:");
+        ImprimeTempo(tmp_data);
+        // Valido se o utilizador quere proseguir com a data inserida ou não
+    } while (!validacaoBinaria("Quere proseguir com esta data?"));
+    // Retorna a data inserida
+    return tmp_data;
+}
+
+// Pede os valores de data final
+// TODO Check filters
+Tempo obterDataFinal()
+{
+    SYSTEMTIME time;
+    Tempo tmp_data;
+    bool validator = false;
+    char texto[1024] = "";
+
+    // Obte a informação da data atual
+    GetLocalTime(&time);
+    do
+    {
+        system("cls");
+        printf("Insira os dados da data final");
+        strcpy(texto, "\nInsira um ano:");
+        // Pede o ano
+        do
+        {
+            if (validator)
+                strcpy(texto, "\nInsira um ano valido:");
+            tmp_data.Ano = obterInt(texto);
+            // Validação dos dados
+            validator = !(tmp_data.Ano <= time.wYear);
+        } while (validator);
+
+        validator = false;
+        strcpy(texto, "\nInsira um ano:");
+        // Pede o mes
+        do
+        {
+            if (validator)
+                strcpy(texto, "\nInsira um mes valido:");
+            tmp_data.Mes = obterInt(texto);
+            // Validação dos dados
+            validator = !((tmp_data.Mes <= time.wMonth && tmp_data.Ano == time.wYear) || (tmp_data.Ano < time.wYear && tmp_data.Mes <= 12));
+        } while (validator);
+
+        validator = false;
+        strcpy(texto, "\nInsira um dia:");
+        // Pede o dia
+        do
+        {
+            if (validator)
+                strcpy(texto, "\nInsira um dia valido:");
+            tmp_data.Dia = obterInt(texto);
+            // Validação dos dados
+            validator = !((tmp_data.Dia <= time.wDay && tmp_data.Mes == time.wMonth && tmp_data.Ano == time.wYear) || (tmp_data.Ano < time.wYear && tmp_data.Dia <= 30));
+        } while (validator);
+
+        // Inicializa os valores do tempo
+        tmp_data.Hora = 0;
+        tmp_data.Minuto = 0;
+        tmp_data.Segundo = 0;
+
+        // Mostra a informação ao utilizador
+        system("cls");
+        printf("Data inserida:");
+        ImprimeTempo(tmp_data);
+        // Valido se o utilizador quere proseguir com a data inserida ou não
+    } while (!validacaoBinaria("Quere proseguir com esta data?"));
+    // Retorna a data inserida
+    return tmp_data;
+}
+
+// Valição da uma data dentro de uns parametros
+// TODO Check filters
+bool validarData(Tempo data_verificar, Tempo start, Tempo end)
+{
+    bool validation;
+
+    validation = (start.Ano <= data_verificar.Ano || data_verificar.Ano <= end.Ano);
+
+    if (start.Ano == data_verificar.Ano)
+    {
+        validation = (start.Mes <= data_verificar.Mes);
+        if (start.Mes == data_verificar.Mes)
+            validation = (start.Dia <= data_verificar.Dia);
+    }
+    else if (end.Ano == data_verificar.Ano)
+    {
+        validation = (end.Mes >= data_verificar.Mes);
+        if (end.Mes == data_verificar.Mes)
+            validation = (end.Dia >= data_verificar.Dia);
+    }
+
+    return validation;
 }
