@@ -35,7 +35,7 @@ typedef struct // Estrutura Utilizador
     char Nome[1024];
     int NIF;
     char Tipo[255];
-    char Email[1024];
+    char Email[255];
     float Valor_Conta;
 } Utilizador;
 
@@ -44,8 +44,8 @@ typedef struct // Estrutura Escola
     int ID;
     char Nome[1024];
     char Abreviatura[10];
-    char Campus[1024];
-    char Localidade[1024];
+    char Campus[255];
+    char Localidade[255];
 } Escola;
 
 typedef struct // Estrutura de movimentos
@@ -844,12 +844,12 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
         *contador_utilizadores = index;
         // Fechar o ficheiro
         fclose(fileStream);
-        printf("\nFinish reading file %s\n", filePath);
+        printf("\nFinish reading file %s", filePath);
     }
     else
     {
         // Caso a abertura do ficheiro tiver algum erro
-        printf("\nError opening file: %s\n", filePath);
+        printf("\nError opening file: %s", filePath);
         perror("Error");
     }
 }
@@ -975,12 +975,12 @@ void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int *cont
         fclose(fileStream);
         // Atribuir contagem de escolas
         *contador_escolas = index;
-        printf("\nFinish reading file %s\n", filePath);
+        printf("\nFinish reading file %s", filePath);
     }
     else
     {
         // Caso a abertura do ficheiro de erro
-        printf("\nError opening file: %s\n", filePath);
+        printf("\nError opening file: %s", filePath);
         perror("Error");
     }
 }
@@ -1106,12 +1106,12 @@ void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], 
         *contador_movimentos = index;
         // Fechar ficheiro
         fclose(fileStream);
-        printf("\nFinish reading file %s\n", filePath);
+        printf("\nFinish reading file %s", filePath);
     }
     else
     {
         // Caso a abertura do ficheiro de erro
-        printf("\nError opening file: %s\n", filePath);
+        printf("\nError opening file: %s", filePath);
         perror("Error");
     }
 }
@@ -1355,7 +1355,6 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int 
     do
     {
         // Atribui uma id
-        // TODO criar uma id mais dinâmica
         novo_utilizador.ID = id_novo_utilizador;
         // Atribui a escola escolhida pelo utilizador
         novo_utilizador.ID_Escola = escolherEscola(lista_escolas, contador_Escolas).ID;
@@ -1687,7 +1686,7 @@ bool validarDataMovimento(Tempo data_verificar, Tempo start, Tempo end)
             if (start.Mes == data_verificar.Mes)
                 validation = (start.Dia <= data_verificar.Dia);
         }
-        // Verifica se tem o mesmo ano que a final
+        // Verifica se tem o mesmo ano que a data final
         else if (end.Ano == data_verificar.Ano)
         {
             // Verifica o mes
