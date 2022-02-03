@@ -34,7 +34,7 @@ typedef struct // Estrutura Utilizador
     int ID_Escola;
     char Nome[1024];
     int NIF;
-    char Tipo[1024];
+    char Tipo[255];
     char Email[1024];
     float Valor_Conta;
 } Utilizador;
@@ -52,7 +52,7 @@ typedef struct // Estrutura de movimentos
 {
     int ID;
     int ID_Utilizador;
-    char Tipo[1024];
+    char Tipo[255];
     float Valor;
     Tempo Data_Hora;
 } Transacao;
@@ -92,6 +92,12 @@ Tempo obterDataFinal();
 bool validarData(Tempo, Tempo, Tempo);
 //---------Declaração Funções Especificas---------//
 
+//---------Funções Ver dados---------//
+
+void ver_utilizadores(Utilizador[], int);
+void ver_escolas(Escola[], int);
+void ver_movimentos(Transacao[], int);
+
 //---------Funções Importe de dados---------//
 
 void importFicheiroBinUtilizadores(char[], Utilizador[], int *);
@@ -116,7 +122,7 @@ void guardarDadosUtilizador(char[], Utilizador *, int);
 void guardarDadosEscola(char[], Escola *, int);
 void guardarDadosTransacao(char[], Transacao *, int);
 
-void crearUtilizador(Utilizador *, int, int *);
+void crearUtilizador(Utilizador *, int, int *, Escola[], int);
 void escolherTipoUtilizador(char *);
 void crearEscola(Escola *, int *);
 void escolherTipoMovimento(char *);
@@ -172,30 +178,19 @@ int main()
         switch (resposta)
         {
         case '1': // Mostrar dados no sistema
+            system("cls");
             switch (validacaoCharacter("U - Dados Utilizadores\nE - Dados Escolas\nM - Movimentos\nX - Sair", "UEMX"))
             {
             case 'U': // Mostrar utilizadores
-                if (counter_utilizadores > 0)
-                    for (index = 0; index < counter_utilizadores; index++)
-                        ImprimeUtilizador(utilizadores[index]);
-                else
-                    printf("Sem registo de utilizadores");
+                ver_utilizadores(utilizadores, counter_utilizadores);
                 esperarEnter();
                 break;
             case 'E': // Mostrar escolas
-                if (counter_escolas > 0)
-                    for (index = 0; index < counter_escolas; index++)
-                        ImprimeEscola(escolas[index]);
-                else
-                    printf("Sem registo de escolas");
+                ver_escolas(escolas, counter_escolas);
                 esperarEnter();
                 break;
             case 'M': // Mostrar transações
-                if (counter_movimentos > 0)
-                    for (index = 0; index < counter_movimentos; index++)
-                        ImprimeTransacao(movimentos[index]);
-                else
-                    printf("Sem registo de movimentos");
+                ver_movimentos(movimentos, counter_movimentos);
                 esperarEnter();
                 break;
             default:
@@ -225,28 +220,41 @@ int main()
             switch (validacaoCharacter("Escolha o tipo de da dados que quere inserir.\nU - Utilizador\nE - Escola\nM - Movimento\nX - Cancelar", "UEMX"))
             {
             case 'U': // Inserir um novo utilizador
-                index = 0;
-                index_novo_dado = -1;
-                while (index_novo_dado < 0 && index < counter_utilizadores)
+                if (counter_escolas <= 0)
                 {
-                    if (strlen(utilizadores[index].Nome) == 0)
-                        index_novo_dado = index;
-                    index++;
+                    printf("Nao existem escolas registadas.\nRegistre primeiro uma escola para poder ter utilizadores.");
+                    esperarEnter();
                 }
-                if (index_novo_dado < 0)
-                    printf("Sem espaco para utilizador!");
                 else
-                    crearUtilizador(&utilizadores[index_novo_dado], index_novo_dado, &counter_utilizadores);
+                {
+                    index = 0;
+                    index_novo_dado = -1;
+                    // Procura o primeiro campo nos utilizadores vacio
+
+                    while (index_novo_dado < 0 && index < MAX_UTILIZADORES)
+                    {
+                        if (strlen(utilizadores[index].Nome) == 0)
+                            index_novo_dado = index;
+                        index++;
+                    }
+                    // Verifica se existe espaço no array
+                    if (index_novo_dado < 0)
+                        printf("Sem espaco para utilizador!");
+                    else
+                        crearUtilizador(&utilizadores[index_novo_dado], index_novo_dado, &counter_utilizadores, escolas, counter_escolas);
+                }
                 break;
             case 'E': // Inserir uma nova escola
                 index = 0;
                 index_novo_dado = -1;
-                while (index_novo_dado < 0 && index < counter_escolas)
+                // Procura o primeiro campo nas escolas vacio
+                while (index_novo_dado < 0 && index < MAX_ESCOLAS)
                 {
                     if (strlen(escolas[index].Nome) == 0)
                         index_novo_dado = index;
                     index++;
                 }
+                // Verifica se existe espaço no array
                 if (index_novo_dado < 0)
                     printf("Sem espaco para nova Escola!");
                 else
@@ -254,26 +262,52 @@ int main()
 
                 break;
             case 'M': // Insire um novo movimento
-                index_utilizador = obter_index_utilizador(utilizadores, counter_utilizadores);
-                if (index_utilizador < 0)
+                if (counter_escolas <= 0)
                 {
-                    printf("Nao foi encontrado nenhum utilizador");
+                    printf("Nao existem escolas registadas.\nRegistre primeiro uma escola para poder ter movimentos.");
+                    esperarEnter();
+                }
+                else if (counter_utilizadores <= 0)
+                {
+                    printf("Nao existem utilizadores registadas.\nRegistre primeiro um utilizador para poder ter movimentos.");
                     esperarEnter();
                 }
                 else
                 {
-                    if (counter_movimentos == MAX_MOVIMENTOS)
+                    system("cls");
+                    index_utilizador = obter_index_utilizador(utilizadores, counter_utilizadores);
+                    if (index_utilizador < 0)
                     {
-                        printf("Sem espaco para novo movimento!");
+                        printf("Nao foi encontrado nenhum utilizador");
                         esperarEnter();
                     }
                     else
-                        crearMovimento(&utilizadores[index_utilizador], &movimentos[counter_movimentos + 1], &counter_movimentos);
+                    {
+                        index = 0;
+                        index_novo_dado = -1;
+                        // Procura o primeiro campo nos movimentos vacio
+                        while (index_novo_dado < 0 && index < MAX_MOVIMENTOS)
+                        {
+                            if (strlen(movimentos[index].Tipo) == 0)
+                                index_novo_dado = index;
+                            index++;
+                        }
+
+                        // Verifica se existe espaço no array
+                        if (index_novo_dado < 0)
+                        {
+                            printf("Sem espaco para novo movimento!");
+                            esperarEnter();
+                        }
+                        else
+                            crearMovimento(&utilizadores[index_utilizador], &movimentos[index_novo_dado], &counter_movimentos);
+                    }
                 }
                 break;
             }
             break;
         case '4': // Exportação de dados
+            system("cls");
             switch (validacaoCharacter("\nExportar como\n1 - CSV\n2 - Bin\nX - Sair", "12X"))
             {
             case '1': // Exportação para ficheiro CSV
@@ -295,6 +329,7 @@ int main()
             }
             break;
         case '5': // Importação de ficheiros
+            system("cls");
             switch (validacaoCharacter("\nImportar ficheiro\n1 - CSV\n2 - Bin\nX - Sair", "12X"))
             {
             case '1': // Importar ficheiro CSV
@@ -408,7 +443,6 @@ char validacaoCharacter(char texto[], char valores_validos[])
     char resposta;
     do
     {
-        system("cls");
         printf(texto);
         printf("\n-->");
         fflush(stdin);
@@ -491,20 +525,15 @@ void obterMayusculas(char texto[], char *string_destino)
 void obterData_Hora(Tempo *datos_novos)
 {
     SYSTEMTIME time;
-    Tempo datos_tmp = *datos_novos;
 
     GetLocalTime(&time);
 
-    datos_tmp.Ano = time.wYear;
-    datos_tmp.Mes = time.wMonth;
-    datos_tmp.Dia = time.wDay;
-    datos_tmp.Hora = time.wHour;
-    datos_tmp.Minuto = time.wMinute;
-    datos_tmp.Segundo = time.wSecond;
-
-    *datos_novos = datos_tmp;
-
-    // printf("Year: %d, Month: %d, Day: %d, Hour: %d, Minute:%d, Second: %d, Millisecond: %d", time.wYear, time.wMonth, time.wDay, time.wHour, time.wMinute, time.wSecond, time.wMilliseconds);
+    datos_novos->Ano = time.wYear;
+    datos_novos->Mes = time.wMonth;
+    datos_novos->Dia = time.wDay;
+    datos_novos->Hora = time.wHour;
+    datos_novos->Minuto = time.wMinute;
+    datos_novos->Segundo = time.wSecond;
 }
 
 // Calcula a porcentagem de um valor em função do numero de elementos
@@ -547,8 +576,64 @@ int pedirTipoUtilizador()
     return charParaInt(validacaoCharacter(texto, opcoes)) - 1;
 }
 
+// Vai permitir au utilizador escolher uma escola
+Escola escolherEscola(Escola lista_escolas[], int contador)
+{
+    int index = 0, tmp_id_escola, index_escola = -1;
+    do
+    {
+        system("cls");
+        printf("Escolha uma escola:");
+        for (index = 0; index < contador; index++)
+        {
+            printf("\nId.%d - %s", lista_escolas[index].ID, lista_escolas[index].Nome);
+        }
+        tmp_id_escola = obterInt("\n->");
 
+        for (index = 0; index < contador; index++)
+            if (lista_escolas[index].ID == tmp_id_escola)
+                index_escola = index;
+        if (index_escola < 0)
+        {
+            printf("Escola nao encontrado");
+            esperarEnter();
+        }
+    } while (index_escola < 0);
+    return lista_escolas[index_escola];
+}
 //---------Funções especificas---------//
+
+// Permite ver a lista de utilizadores
+void ver_utilizadores(Utilizador lista_utilizadores[], int contador)
+{
+    // Filtra se existem utilizadores ou não
+    if (contador > 0)
+        for (int index = 0; index < contador; index++)
+            ImprimeUtilizador(lista_utilizadores[index]);
+    else
+        printf("Sem registo de utilizadores");
+}
+
+// Permite ver a lista de escolas
+void ver_escolas(Escola lista_escolas[], int contador)
+{
+    // Filtra se existem escolas ou não
+    if (contador > 0)
+        for (int index = 0; index < contador; index++)
+            ImprimeEscola(lista_escolas[index]);
+    else
+        printf("Sem registo de escolas");
+}
+
+// Permite ver a lista de movimentos
+void ver_movimentos(Transacao lista_movimentos[], int contador)
+{
+    if (contador > 0)
+        for (int index = 0; index < contador; index++)
+            ImprimeTransacao(lista_movimentos[index]);
+    else
+        printf("Sem registo de movimentos");
+}
 
 // Importa os dados dos Utilizadores para o programa apartir de ficheiros CSV
 void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadores[], int *contador_utilizadores)
@@ -1014,7 +1099,7 @@ void guardarDadosTransacao(char novo_dado[], Transacao *dados_antigos, int colun
 }
 
 // Cria um utilizador
-void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int *contador_utilizadores)
+void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int *contador_utilizadores, Escola lista_escolas[], int contador_Escolas)
 {
     // Faz uma copia do utilizador pasado por referencia
     Utilizador novo_utilizador = *utilizador_actual;
@@ -1023,16 +1108,17 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int 
     do
     {
         // Atribui uma id
+        // TODO criar uma id mais dinâmica
         novo_utilizador.ID = id_novo_utilizador;
         // TODO Processo de seleção de escola dinámico com os dados no programa
         // Atribui a escola escolhida pelo utilizador
-        novo_utilizador.ID_Escola = pedirTipoUtilizador();
+        novo_utilizador.ID_Escola = escolherEscola(lista_escolas, contador_Escolas).ID;
         // Atribui o nome inserido pelo utilizador
         obterString("Insira o seu nome: ", novo_utilizador.Nome);
         // Atribui o NIF inserido pelo utilizador
         novo_utilizador.NIF = obterInt("Insira o seu NIF:");
         // Atribui o tipo de utilizador inserido pelo utilizador
-        escolherTipoUtilizador(&novo_utilizador.Tipo);
+        strcpy(novo_utilizador.Tipo, TIPO_UTILIZADOR[pedirTipoUtilizador()]);
         // Atribui o email inserido pelo utilizador
         obterString("Insira o seu Email: ", novo_utilizador.Email);
         // Atribui o valor inicial na conta inserido pelo utilizador
@@ -1040,7 +1126,6 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int 
         system("cls");
         // Mostra o dados o utilizador antes de guardar
         ImprimeUtilizador(novo_utilizador);
-        esperarEnter();
         // Permite ver o utilizador se os dados que quere inserir estão corretos
         resposta = validacaoCharacter("\nTem a certeza que quere inserir estes dados?\nY-Sim\nN-Nao\nX-Cancelar novo registo", "YNX");
     } while (resposta == 'N');
@@ -1092,7 +1177,6 @@ void crearEscola(Escola *escola_actual, int *contador_escolas)
         system("cls");
         // Mostra os dados o utilizador
         ImprimeEscola(nova_escola);
-        esperarEnter();
         // Permite ver ao utilizador se os dados que quere inserir estão corretos
         resposta = validacaoCharacter("\nTem a certeza que quere inserir estes dados?\nY-Sim\nN-Nao\nX-Cancelar novo registo", "YNX");
     } while (resposta == 'N');
@@ -1112,37 +1196,42 @@ void crearEscola(Escola *escola_actual, int *contador_escolas)
 }
 
 // Função criar Transação
-void crearMovimento(Utilizador *utilizador, Transacao *movimento, int *contador_movimentos)
+void crearMovimento(Utilizador *user, Transacao *movimento, int *contador_movimentos)
 {
     Transacao novo_movimento = *movimento;
     int valor_movimento = 0;
     bool valor_validator = FALSE;
     char resposta;
+    char texto[255];
     system("cls");
     do
     {
         // Atribui uma id
         novo_movimento.ID = *contador_movimentos + 1;
-        // Atribui id utilizador
-        novo_movimento.ID_Utilizador = utilizador->ID;
+        // Atribui id user
+        novo_movimento.ID_Utilizador = user->ID;
         // Atribui o tipo de movimento
-        escolherTipoMovimento(&novo_movimento.Tipo);
+        strcpy(novo_movimento.Tipo, TIPO_MOVIMENTO[pedirTipoMovimento()]);
+        snprintf(texto, sizeof(texto), "Utilizador %d.%s\nTipo de movimento: %s\nInsira o valor do movimento:", user->ID, user->Nome, novo_movimento.Tipo);
         // Atribui o valor do movimento
-        if (novo_movimento.Tipo == TIPO_MOVIMENTO[0])
+        if (!strcmp(novo_movimento.Tipo, TIPO_MOVIMENTO[0]))
         {
             do
             {
+                valor_movimento = obterFloat(texto);
+                valor_validator = valor_movimento > user->Valor_Conta;
                 if (valor_validator)
-                    printf("O utilizador %s não tem dinheiro na conta suficiente", utilizador->Nome);
-                valor_movimento = obterFloat("Insira o valor do movimento:");
-                valor_validator = valor_movimento > utilizador->Valor_Conta;
+                {
+                    printf("Não tem dinheiro suficiente na conta.");
+                }
             } while (valor_validator);
+            novo_movimento.Valor = valor_movimento;
         }
         else
-            novo_movimento.Valor = obterFloat("Insira o valor do movimento:");
+            novo_movimento.Valor = obterFloat(texto);
         obterData_Hora(&novo_movimento.Data_Hora);
         system("cls");
-        // Mostra o dados o utilizador antes de guardar
+        // Mostra o dados do movimento antes de guardar
         ImprimeTransacao(novo_movimento);
         // Permite ver o utilizador se os dados que quere inserir estão corretos
         resposta = validacaoCharacter("\nTem a certeza que quere inserir estes dados?\nY-Sim\nN-Nao\nX-Cancelar novo registo", "YNX");
@@ -1150,6 +1239,10 @@ void crearMovimento(Utilizador *utilizador, Transacao *movimento, int *contador_
 
     if (resposta == 'Y')
     {
+        if (!strcmp(novo_movimento.Tipo, TIPO_MOVIMENTO[0]))
+            user->Valor_Conta -= novo_movimento.Valor;
+        else
+            user->Valor_Conta += novo_movimento.Valor;
         // Guarda os dados no sistema
         *movimento = novo_movimento;
         (*contador_movimentos)++;
@@ -1169,22 +1262,12 @@ int obter_index_utilizador(Utilizador lista_utilizadores[], int contador_utiliza
     int user_numb = obterInt("Insira o numero do utilizador:");
     do
     {
-        printf("Im search user %d. User at Index (%d): %d.\n", user_numb, index, lista_utilizadores[index].ID);
         if (user_numb == lista_utilizadores[index].ID)
             index_utilizador = index;
         index++;
     } while (index < contador_utilizadores && index_utilizador == -1);
 
     return index_utilizador;
-}
-
-// Função pede ao utilizador insira un tipo de movimento
-void escolherTipoMovimento(char *string_movimento)
-{
-    // Pede o utilizador para escolher um numero atribuido o tipo de movimento que quere inserir
-    char texto[] = "Escolha o tipo de movimento\n1 - Pagamento\n2 - Carregamento", valoresValidos[] = "12";
-    // Vai buscar o tipo de movimento a variavel global apartir do numero obtido do utilizador
-    strcpy(string_movimento, TIPO_MOVIMENTO[charParaInt(validacaoCharacter(texto, valoresValidos) - 1)]);
 }
 
 // Função total de faturação por escola
@@ -1254,7 +1337,8 @@ void calculoPercentagemMovimentos(Utilizador lista_utilizadores[], Escola lista_
     esperarEnter();
 }
 
-// Função para calcular total de pagamentos entre duas datas por tipo de utilizador
+/* Função para calcular total de pagamentos entre duas datas por tipo de utilizador
+TODO Not functional yet*/
 void calculoTotalUtilizadorEntreDatas(Utilizador lista_utilizadores[], Escola lista_escolas[], Transacao lista_movimentos[], int contador_utilizadores, int contador_escolas, int contador_movimentos)
 {
     int valor_total = 0;
