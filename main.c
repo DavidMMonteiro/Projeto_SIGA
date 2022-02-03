@@ -601,6 +601,11 @@ Escola escolherEscola(Escola lista_escolas[], int contador)
     } while (index_escola < 0);
     return lista_escolas[index_escola];
 }
+
+// TODO Validação de NIF
+
+// TODO Validação de Mail
+
 //---------Funções especificas---------//
 
 // Permite ver a lista de utilizadores
@@ -1110,11 +1115,10 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int 
         // Atribui uma id
         // TODO criar uma id mais dinâmica
         novo_utilizador.ID = id_novo_utilizador;
-        // TODO Processo de seleção de escola dinámico com os dados no programa
         // Atribui a escola escolhida pelo utilizador
         novo_utilizador.ID_Escola = escolherEscola(lista_escolas, contador_Escolas).ID;
         // Atribui o nome inserido pelo utilizador
-        obterString("Insira o seu nome: ", novo_utilizador.Nome);
+        obterString("Insira o seu nome utilizador: ", novo_utilizador.Nome);
         // Atribui o NIF inserido pelo utilizador
         novo_utilizador.NIF = obterInt("Insira o seu NIF:");
         // Atribui o tipo de utilizador inserido pelo utilizador
