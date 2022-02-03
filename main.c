@@ -1672,20 +1672,30 @@ bool validarDataInicialDataFinal(Tempo data_inicial, Tempo data_final)
 // Valição da uma data dentro de uns parametros
 bool validarDataMovimento(Tempo data_verificar, Tempo start, Tempo end)
 {
+    // Validação dentro dos parametros
     bool validation = (start.Ano <= data_verificar.Ano && data_verificar.Ano <= end.Ano);
+
+    // Se estiver dentro dos parametros
     if (validation)
+    {
+        // Verifica se tem o mesmo ano que a inicial
         if (start.Ano == data_verificar.Ano)
         {
+            // Verifica o mes
             validation = (start.Mes <= data_verificar.Mes);
+            // Verifica se esta no mesmo mes que a data inicial
             if (start.Mes == data_verificar.Mes)
                 validation = (start.Dia <= data_verificar.Dia);
         }
+        // Verifica se tem o mesmo ano que a final
         else if (end.Ano == data_verificar.Ano)
         {
+            // Verifica o mes
             validation = (end.Mes >= data_verificar.Mes);
+            // Verifica se esta no mesmo mes que a data final
             if (end.Mes == data_verificar.Mes)
                 validation = (end.Dia >= data_verificar.Dia);
         }
-
+    }
     return validation;
 }
