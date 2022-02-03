@@ -87,12 +87,12 @@ void obterData_Hora(Tempo *);
 float calculoPercentagem(int, int);
 int pedirTipoMovimento();
 int pedirTipoUtilizador();
-bool validarData(Tempo, Tempo, Tempo);
+bool validarDataMovimento(Tempo, Tempo, Tempo);
 void inicializarHora(Tempo *);
-void obterAno(Tempo *);
-void obterMes(Tempo *);
-void obterDia(Tempo *);
-Tempo obterData(char []);
+void obterAno(Tempo *, char[]);
+void obterMes(Tempo *, char[]);
+void obterDia(Tempo *, char[]);
+Tempo obterData(char[]);
 
 //---------Declaração Funções Especificas---------//
 
@@ -127,7 +127,6 @@ void guardarDadosEscola(char[], Escola *, int);
 void guardarDadosTransacao(char[], Transacao *, int);
 
 void crearUtilizador(Utilizador *, int, int *, Escola[], int);
-void escolherTipoUtilizador(char *);
 void crearEscola(Escola *, int *);
 void escolherTipoMovimento(char *);
 int obter_index_utilizador(Utilizador[], int);
@@ -135,6 +134,7 @@ void crearMovimento(Utilizador *, Transacao *, int *);
 void calculoTotalFaturacao(Utilizador[], Escola[], Transacao[], int, int, int);
 void calculoPercentagemMovimentos(Utilizador[], Escola[], Transacao[], int, int, int);
 void calculoTotalUtilizadorEntreDatas(Utilizador[], Escola[], Transacao[], int, int, int);
+bool validarDataInicialDataFinal(Tempo, Tempo);
 
 //---------------------------------------------//
 
@@ -441,7 +441,10 @@ bool validacaoBinaria(char texto[])
     return resposta == 'Y' ? true : false;
 }
 
-// Validacao de leitura de char's
+/* Validacao de leitura de char's
+ Parametros:
+ - Texto a mostrar
+ - Opções*/
 char validacaoCharacter(char texto[], char valores_validos[])
 {
     char resposta;
@@ -486,14 +489,17 @@ int charParaInt(char input)
 }
 
 // Para o programa ate o utilizador insira enter
-void esperarEnter(void)
+void esperarEnter()
 {
     fflush(stdin);
     printf("\nEnter para continuar...");
     getchar();
 }
 
-// Obtem uma string do utilizador
+/* Obtem uma string do utilizador
+ Parametros;
+ - Texto da informação a pedir
+ - String destino onde guardar a informção obtida*/
 void obterString(char text[], char *data)
 {
     char input[255];
@@ -515,7 +521,10 @@ void obterString(char text[], char *data)
     strcpy(data, input);
 }
 
-// Obtem todas as letras mayusculas de uma string
+/* Obtem todas as letras mayusculas de uma string
+ Parametros:
+ - String a analizar
+ - String destino para guardar a informação procesada*/
 void obterMayusculas(char texto[], char *string_destino)
 {
     char letras_mayusculas[10] = "";
@@ -525,7 +534,9 @@ void obterMayusculas(char texto[], char *string_destino)
     strcpy(string_destino, letras_mayusculas);
 }
 
-// Obtem a data e hora no systema
+/* Obtem a data e hora no systema
+ Parametros:
+ - Variavel onde vai ser guarda a informação*/
 void obterData_Hora(Tempo *datos_novos)
 {
     SYSTEMTIME time;
@@ -552,7 +563,7 @@ int pedirTipoMovimento()
     char texto[1024] = "Tipo de movimento:", tmp_texto[1024];
     char opcoes[255], tmp_opcao[15] = "";
     int index = 0;
-
+    system("cls");
     for (index = 0; index < (int)(sizeof(TIPO_MOVIMENTO) / sizeof(TIPO_MOVIMENTO[0])); index++)
     {
         itoa((index + 1), tmp_opcao, 10);
@@ -569,7 +580,7 @@ int pedirTipoUtilizador()
     char texto[1024] = "Tipo de utilizador:", tmp_texto[1024];
     char opcoes[255], tmp_opcao[15] = "";
     int index = 0;
-
+    system("cls");
     for (index = 0; index < (int)(sizeof(TIPO_UTILIZADOR) / sizeof(TIPO_UTILIZADOR[0])); index++)
     {
         itoa((index + 1), tmp_opcao, 10);
@@ -580,7 +591,10 @@ int pedirTipoUtilizador()
     return charParaInt(validacaoCharacter(texto, opcoes)) - 1;
 }
 
-// Vai permitir au utilizador escolher uma escola
+/* Vai permitir au utilizador escolher uma escola
+ Parametros:
+ - Lista de escolas
+ - Numero de escolas registadas*/
 Escola escolherEscola(Escola lista_escolas[], int contador)
 {
     int index = 0, tmp_id_escola, index_escola = -1;
@@ -606,7 +620,9 @@ Escola escolherEscola(Escola lista_escolas[], int contador)
     return lista_escolas[index_escola];
 }
 
-// Inicializa a hora de uma data a 0
+/* Inicializa a hora de uma data a 0
+ Parametro:
+ - Variavel Tempo para guarda a informação*/
 void inicializarHora(Tempo *data)
 {
     data->Hora = 0;
@@ -614,8 +630,11 @@ void inicializarHora(Tempo *data)
     data->Segundo = 0;
 }
 
-// Obter e filtrar a data
-void obterAno(Tempo *data)
+/* Obter e filtrar a data.
+ Parametro:
+ - Variavel Tempo para guardar a informação
+ - Texto com o tipo de data a pesquisar*/
+void obterAno(Tempo *data, char texto[])
 {
     SYSTEMTIME time;
 
@@ -630,6 +649,7 @@ void obterAno(Tempo *data)
     {
 
         system("cls");
+        printf(texto);
         //
         tmp_data.Ano = obterInt("Insira o ano:");
         // Validação dos dados
@@ -644,8 +664,11 @@ void obterAno(Tempo *data)
     data->Ano = tmp_data.Ano;
 }
 
-// Obter e filtrar o mes
-void obterMes(Tempo *data)
+/* Obter e filtrar o mes.
+ Parametros:
+ - Variavel Tempo para guardar a informação
+ - Texto com o tipo de data a pesquisar*/
+void obterMes(Tempo *data, char texto[])
 {
     SYSTEMTIME time;
     // Obtem a data atual
@@ -660,6 +683,7 @@ void obterMes(Tempo *data)
 
         system("cls");
         //
+        printf(texto);
         printf("Data: --/--/%d\n", data->Ano);
         tmp_data.Mes = obterInt("Insira um mes:");
         // Validação dos dados
@@ -674,8 +698,11 @@ void obterMes(Tempo *data)
     data->Mes = tmp_data.Mes;
 }
 
-// Obter e filtrar o dia
-void obterDia(Tempo *data)
+/* Obter e filtrar o dia.
+ Parametro:
+ - Variavel Tempo para guardar a informação
+ - Texto com o tipo de data a pesquisar*/
+void obterDia(Tempo *data, char texto[])
 {
     SYSTEMTIME time;
     // Temporal data
@@ -690,6 +717,7 @@ void obterDia(Tempo *data)
 
         system("cls");
         //
+        printf(texto);
         printf("Data: --/%d/%d\n", data->Mes, data->Ano);
         tmp_data.Dia = obterInt("Insira um dia:");
         // Validação dos dados
@@ -704,7 +732,9 @@ void obterDia(Tempo *data)
     data->Dia = tmp_data.Dia;
 }
 
-// Pede os valores de uma data ao utilizador
+/* Pede os valores de uma data ao utilizador.
+ Parametro:
+ - Texto com o tipo de data a pesquisar*/
 Tempo obterData(char texto[])
 {
     // Data temporal
@@ -715,11 +745,11 @@ Tempo obterData(char texto[])
         system("cls");
         // Obtem informação da data do utilizador
         printf(texto);
-        obterAno(&tmp_data);
+        obterAno(&tmp_data, texto);
         printf(texto);
-        obterMes(&tmp_data);
+        obterMes(&tmp_data, texto);
         printf(texto);
-        obterDia(&tmp_data);
+        obterDia(&tmp_data, texto);
         //
         inicializarHora(&tmp_data);
 
@@ -742,7 +772,10 @@ Tempo obterData(char texto[])
 
 //---------Funções especificas---------//
 
-// Permite ver a lista de utilizadores
+/* Permite ver a lista de utilizadores
+ Parametros:
+ - Lista de utilizadores
+ - Número de registos*/
 void ver_utilizadores(Utilizador lista_utilizadores[], int contador)
 {
     // Filtra se existem utilizadores ou não
@@ -753,7 +786,10 @@ void ver_utilizadores(Utilizador lista_utilizadores[], int contador)
         printf("Sem registo de utilizadores");
 }
 
-// Permite ver a lista de escolas
+/* Permite ver a lista de escolas
+ Parametros:
+ - Lista de escolas
+ - Número de registos*/
 void ver_escolas(Escola lista_escolas[], int contador)
 {
     // Filtra se existem escolas ou não
@@ -764,7 +800,10 @@ void ver_escolas(Escola lista_escolas[], int contador)
         printf("Sem registo de escolas");
 }
 
-// Permite ver a lista de movimentos
+/* Permite ver a lista de movimentos
+ Parametros:
+ - Lista de movimentos
+ - Número de registos*/
 void ver_movimentos(Transacao lista_movimentos[], int contador)
 {
     if (contador > 0)
@@ -774,7 +813,11 @@ void ver_movimentos(Transacao lista_movimentos[], int contador)
         printf("Sem registo de movimentos");
 }
 
-// Importa os dados dos Utilizadores para o programa apartir de ficheiros CSV
+/* Importa os dados dos Utilizadores para o programa apartir de ficheiros CSV
+ Parametros:
+ - Caminho do ficheiro
+ - Lista
+ - Número de registo*/
 void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadores[], int *contador_utilizadores)
 {
     FILE *fileStream = fopen(filePath, "r");
@@ -811,7 +854,11 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
     }
 }
 
-// Exporta os dados dos Utilizadores para ficheiros CSV
+/* Exporta os dados dos Utilizadores para ficheiros CSV
+ Parametros:
+ - Caminho do ficheiro
+ - Lista
+ - Número de registo*/
 void exportFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadores[], int counter_utilizadores, bool rescreber)
 {
     // Vai validar se existem informação a ser guardada
@@ -838,7 +885,11 @@ void exportFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
     fclose(ficheiro);
 }
 
-// Importa os dados dos Utilizadores para o programa apartir de ficheiros Bin
+/* Importa os dados dos Utilizadores para o programa apartir de ficheiros Bin
+ Parametros:
+ - Caminho do ficheiro
+ - Lista
+ - Número de registo*/
 void importFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadores[], int *contador_utilizadores)
 {
     FILE *ficheiro = fopen(filePath, "rb");
@@ -864,7 +915,11 @@ void importFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadore
     fclose(ficheiro);
 }
 
-// Exporta os dados dos Utilizadores para o programa apartir de ficheiros Bin
+/* Exporta os dados dos Utilizadores para o programa apartir de ficheiros Bin
+ Parametros:
+ - Caminho do ficheiro
+ - Lista
+ - Número de registo*/
 void exportFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadores[], int contador_utilizadores, bool rescreber)
 {
     // Vai validar se existem informação a ser guardada
@@ -888,7 +943,11 @@ void exportFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadore
     fclose(ficheiro);
 }
 
-// Importa os dados das Escolas para o programa
+/* Importa os dados das Escolas para o programa
+ Parametros:
+ - Caminho do ficheiro
+ - Lista
+ - Número de registo*/
 void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int *contador_escolas)
 {
     FILE *fileStream = fopen(filePath, "r");
@@ -926,7 +985,11 @@ void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int *cont
     }
 }
 
-// Exporta os dados das Escolas ficheiros CSV
+/* Exporta os dados das Escolas ficheiros CSV
+ Parametros:
+ - Caminho do ficheiro
+ - Lista
+ - Número de registo*/
 void exportFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int counter_escolas, bool rescreber)
 {
     // Vai validar se existem informação a ser guardada
@@ -952,7 +1015,11 @@ void exportFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int count
     fclose(ficheiro);
 }
 
-// Importa os dados das Escolas para o programa apartir de ficheiros Bin
+/* Importa os dados das Escolas para o programa apartir de ficheiros Bin
+ Parametros:
+ - Caminho do ficheiro
+ - Lista
+ - Número de registo*/
 void importFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int *contador_escolas)
 {
     FILE *ficheiro = fopen(filePath, "rb");
@@ -978,7 +1045,11 @@ void importFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int *cont
     fclose(ficheiro);
 }
 
-// Exporta os dados das Escolas para o programa apartir de ficheiros Bin
+/* Exporta os dados das Escolas para o programa apartir de ficheiros Bin
+ Parametros:
+ - Caminho do ficheiro
+ - Lista
+ - Número de registo*/
 void exportFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int contador_escolas, bool rescreber)
 {
     // Vai validar se existem informação a ser guardada
@@ -1002,7 +1073,11 @@ void exportFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int conta
     fclose(ficheiro);
 }
 
-// Importa os dados das Transacoes para o programa apartir de ficheiros CSV
+/* Importa os dados das Transacoes para o programa apartir de ficheiros CSV
+ Parametros:
+ - Caminho do ficheiro
+ - Lista
+ - Número de registo*/
 void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], int *contador_movimentos)
 {
     FILE *fileStream = fopen(filePath, "r");
@@ -1041,7 +1116,11 @@ void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], 
     }
 }
 
-// Exporta os dados das transações ficheiros CSV
+/* Exporta os dados das transações ficheiros CSV
+ Parametros:
+ - Caminho do ficheiro
+ - Lista
+ - Número de registo*/
 void exportFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], int counter_movimentos, bool rescreber)
 {
     // Vai validar se existem informação a ser guardada
@@ -1066,7 +1145,11 @@ void exportFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], 
     fclose(ficheiro);
 }
 
-// Importa os dados das Transacoes para o programa apartir de ficheiros Bin
+/* Importa os dados das Transacoes para o programa apartir de ficheiros Bin
+Parametros:
+ - Caminho do ficheiro
+ - Lista
+ - Número de registo*/
 void importFicheiroBinTransacoes(char filePath[], Transacao lista_movimentos[], int *contador_movimentos)
 {
     FILE *ficheiro = fopen(filePath, "rb");
@@ -1093,7 +1176,11 @@ void importFicheiroBinTransacoes(char filePath[], Transacao lista_movimentos[], 
     fclose(ficheiro);
 }
 
-// Exporta os dados das Transacoes para o programa apartir de ficheiros Bin
+/* Exporta os dados das Transacoes para o programa apartir de ficheiros Bin
+Parametros:
+ - Caminho do ficheiro
+ - Lista
+ - Número de registo*/
 void exportFicheiroBinTransacoes(char filePath[], Transacao lista_movimentos[], int contador_movimentos, bool rescreber)
 {
     // Vai validar se existem informação a ser guardada
@@ -1118,7 +1205,12 @@ void exportFicheiroBinTransacoes(char filePath[], Transacao lista_movimentos[], 
     fclose(ficheiro);
 }
 
-// Insire os dados do novo utilizador na struct pasada por referencia
+/* Insire os dados do novo utilizador, obtidos dos CSV, na struct pasada por referencia
+ Parametros:
+ - Informação obtida
+ - Struct onde guardar informação
+ - Coluna a ser analizada
+ */
 void guardarDadosUtilizador(char novo_dado[], Utilizador *dados_antigos, int coluna)
 {
     switch (coluna)
@@ -1147,7 +1239,12 @@ void guardarDadosUtilizador(char novo_dado[], Utilizador *dados_antigos, int col
     }
 }
 
-// Insire os dados da nova escola na struct pasada por referencia
+/* Insire os dados da nova escola, obtidos dos CSV, na struct pasada por referencia
+ Parametros:
+ - Informação obtida
+ - Struct onde guardar informação
+ - Coluna a ser analizada
+ */
 void guardarDadosEscola(char novo_dado[], Escola *dados_antigos, int coluna)
 {
     switch (coluna)
@@ -1170,7 +1267,12 @@ void guardarDadosEscola(char novo_dado[], Escola *dados_antigos, int coluna)
     }
 }
 
-// Insire os dados da nova escola na struct pasada por referencia
+/* Insire os dados da nova escola, obtidos dos CSV, na struct pasada por referencia
+ Parametros:
+ - Informação obtida
+ - Struct onde guardar informação
+ - Coluna a ser analizada
+ */
 void guardarDadosTransacao(char novo_dado[], Transacao *dados_antigos, int coluna)
 {
     int index_data = 0;
@@ -1237,7 +1339,13 @@ void guardarDadosTransacao(char novo_dado[], Transacao *dados_antigos, int colun
     }
 }
 
-// Cria um utilizador
+/* Função Cria um utilizador
+ Parametros:
+ - Novo utilizador no array
+ - Id do novo utilizador //Dinamisar
+ - Contador de registos de utilizadores
+ - Lista de Escolas
+ - Contador de registos de escolas */
 void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int *contador_utilizadores, Escola lista_escolas[], int contador_Escolas)
 {
     // Faz uma copia do utilizador pasado por referencia
@@ -1281,16 +1389,10 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int 
     }
 }
 
-// Função pede ao utilizador insira un tipo de utilizador
-void escolherTipoUtilizador(char *inserir_tipo)
-{
-    // Pede o utilizador para escolher um numero atribuido o tipo de utilizador que quere inserir
-    char texto[] = "Escolha o tipo de utilizador\n1 - Estudante\n2 - Docente\n3 - Funcionario", valoresValidos[] = "123";
-    // Vai buscar o tipo de utilizador a variavel global apartir do numero obtido do utilizador
-    strcpy(inserir_tipo, TIPO_UTILIZADOR[charParaInt(validacaoCharacter(texto, valoresValidos) - 1)]);
-}
-
-// Cria uma nova escola
+/* Função Cria uma nova escola
+ Parametros:
+ - Nova escola no array
+ - Contador de registos de escolas */
 void crearEscola(Escola *escola_actual, int *contador_escolas)
 {
     // Faz uma copia da escola pasado por referencia
@@ -1333,7 +1435,11 @@ void crearEscola(Escola *escola_actual, int *contador_escolas)
     }
 }
 
-// Função criar Transação
+/* Função criar Transação
+ Parametros:
+ - Utilizar do movimento
+ - Novo movimento
+ - Contador de movimentos*/
 void crearMovimento(Utilizador *user, Transacao *movimento, int *contador_movimentos)
 {
     Transacao novo_movimento = *movimento;
@@ -1393,7 +1499,10 @@ void crearMovimento(Utilizador *user, Transacao *movimento, int *contador_movime
     }
 }
 
-// Função obter index do Utilizador
+/* Função obter index do Utilizador
+ Parametros:
+ - Lista de utilizadores
+ - Contador de utilizadores*/
 int obter_index_utilizador(Utilizador lista_utilizadores[], int contador_utilizadores)
 {
     int index = 0, index_utilizador = -1;
@@ -1408,7 +1517,12 @@ int obter_index_utilizador(Utilizador lista_utilizadores[], int contador_utiliza
     return index_utilizador;
 }
 
-// Função total de faturação por escola
+/* Função total de faturação por escola
+ Parametros:
+ - Lista de utilizadores
+ - Lista de escolas
+ - Lista de movimentos
+ - Contadores das listas*/
 void calculoTotalFaturacao(Utilizador lista_utilizadores[], Escola lista_escolas[], Transacao lista_movimentos[], int contador_utilizadores, int contador_escolas, int contador_movimentos)
 {
     float valor_faturacao;
@@ -1437,7 +1551,12 @@ void calculoTotalFaturacao(Utilizador lista_utilizadores[], Escola lista_escolas
     esperarEnter();
 }
 
-// Função calcular percentagem de tipo de movimentos
+/* Função calcular percentagem de tipo de movimentos
+ Parametros:
+ - Lista de utilizadores
+ - Lista de escolas
+ - Lista de movimentos
+ - Contadores das listas*/
 void calculoPercentagemMovimentos(Utilizador lista_utilizadores[], Escola lista_escolas[], Transacao lista_movimentos[], int contador_utilizadores, int contador_escolas, int contador_movimentos)
 {
     int contador_pagamento = 0, contador_carregamento = 0, contador_movimentos_escola = 0;
@@ -1476,73 +1595,97 @@ void calculoPercentagemMovimentos(Utilizador lista_utilizadores[], Escola lista_
 }
 
 /* Função para calcular total de pagamentos entre duas datas por tipo de utilizador
-TODO Not functional yet*/
+ Parametros:
+ - Lista de utilizadores
+ - Lista de escolas
+ - Lista de movimentos
+ - Contadores das listas*/
 void calculoTotalUtilizadorEntreDatas(Utilizador lista_utilizadores[], Escola lista_escolas[], Transacao lista_movimentos[], int contador_utilizadores, int contador_escolas, int contador_movimentos)
 {
     // Valor total a calcular
-    int valor_total = 0;
+    float valor_total = 0;
     // Index's das listas
     int index_escola, index_utilizador, index_movimentos;
     // Tipos de movimento e utilizador a pesquisar
     int tipo_movimento, tipo_utilizador;
+    //
+    bool validation;
     // Datas
     Tempo data_inicial, data_final;
-    system("cls");
+    //
     tipo_movimento = pedirTipoMovimento();
-    system("cls");
     tipo_utilizador = pedirTipoUtilizador();
-    system("cls");
     data_inicial = obterData("Insira os dados da data inicial.\n");
     do
     {
-        system("cls");
         data_final = obterData("Insira os dados da data final.\n");
-    } while (data_final.Ano < data_inicial.Ano);
+        validation = !validarDataInicialDataFinal(data_inicial, data_final);
+        if (validation)
+        {
+            printf("Insira uma data final [%d/%d/%d] superior a inicial [%d/%d/%d]", data_inicial.Dia, data_inicial.Mes, data_inicial.Ano, data_final.Dia, data_final.Mes, data_final.Ano);
+            esperarEnter();
+        }
+    } while (validation);
 
     system("cls");
-    printf("Data inicial: %d/%d/%d\n", data_inicial.Dia, data_inicial.Mes, data_inicial.Ano);
-    printf("Data Final: %d/%d/%d\n", data_final.Dia, data_final.Mes, data_final.Ano);
+    printf("Data inicial: %d/%d/%d\nData Final: %d/%d/%d\n", data_inicial.Dia, data_inicial.Mes, data_inicial.Ano, data_final.Dia, data_final.Mes, data_final.Ano);
 
     // Vair procesar os utilizadores resgistados
     for (index_utilizador = 0; index_utilizador < contador_utilizadores; index_utilizador++)
     {
-        // Vai procesar os movimentos registados
-        for (index_movimentos = 0; index_movimentos < contador_movimentos; index_movimentos++)
-        {
-            // Verifica a escola do utilizador, os moviemntos do utilizador e tipo de movimento
-            if (lista_movimentos[index_movimentos].ID_Utilizador == lista_utilizadores[index_utilizador].ID &&
-                strcmp(lista_movimentos[index_movimentos].Tipo, TIPO_MOVIMENTO[tipo_movimento]) &&
-                strcmp(lista_utilizadores[index_utilizador].Tipo, TIPO_UTILIZADOR[tipo_utilizador]) &&
-                validarData(lista_movimentos[index_movimentos].Data_Hora, data_inicial, data_final))
+        if (!strcmp(lista_utilizadores[index_utilizador].Tipo, TIPO_UTILIZADOR[tipo_utilizador]))
+            // Vai procesar os movimentos registados
+            for (index_movimentos = 0; index_movimentos < contador_movimentos; index_movimentos++)
             {
-                valor_total += lista_movimentos[index_movimentos].Valor;
+                // Verifica a escola do utilizador, os moviemntos do utilizador e tipo de movimento
+                if (lista_movimentos[index_movimentos].ID_Utilizador == lista_utilizadores[index_utilizador].ID &&
+                    !strcmp(lista_movimentos[index_movimentos].Tipo, TIPO_MOVIMENTO[tipo_movimento]) &&
+                    validarDataMovimento(lista_movimentos[index_movimentos].Data_Hora, data_inicial, data_final))
+                    valor_total += lista_movimentos[index_movimentos].Valor;
             }
-        }
     }
     printf("Valor total dos %s dos %s: %.2f", TIPO_MOVIMENTO[tipo_movimento], TIPO_UTILIZADOR[tipo_utilizador], valor_total);
     esperarEnter();
 }
 
-// Valição da uma data dentro de uns parametros
-// TODO Check filters
-bool validarData(Tempo data_verificar, Tempo start, Tempo end)
+/* Validação da data inicial e data final
+ Parametros:
+ - Data inicial
+ - Data final*/
+bool validarDataInicialDataFinal(Tempo data_inicial, Tempo data_final)
 {
-    bool validation;
 
-    validation = (start.Ano <= data_verificar.Ano || data_verificar.Ano <= end.Ano);
+    // Verifica se o ano da data menor e maior que o ano da data maior
+    bool validation = (data_inicial.Ano <= data_final.Ano);
 
-    if (start.Ano == data_verificar.Ano)
-    {
-        validation = (start.Mes <= data_verificar.Mes);
-        if (start.Mes == data_verificar.Mes)
-            validation = (start.Dia <= data_verificar.Dia);
-    }
-    else if (end.Ano == data_verificar.Ano)
-    {
-        validation = (end.Mes >= data_verificar.Mes);
-        if (end.Mes == data_verificar.Mes)
-            validation = (end.Dia >= data_verificar.Dia);
-    }
+    if (validation)
+        if (data_inicial.Ano == data_final.Ano)
+        {
+            validation = (data_inicial.Mes < data_final.Mes);
+            if (data_inicial.Mes == data_final.Mes)
+                validation = (data_inicial.Dia < data_final.Dia);
+        }
+
+    return validation;
+}
+
+// Valição da uma data dentro de uns parametros
+bool validarDataMovimento(Tempo data_verificar, Tempo start, Tempo end)
+{
+    bool validation = (start.Ano <= data_verificar.Ano && data_verificar.Ano <= end.Ano);
+    if (validation)
+        if (start.Ano == data_verificar.Ano)
+        {
+            validation = (start.Mes <= data_verificar.Mes);
+            if (start.Mes == data_verificar.Mes)
+                validation = (start.Dia <= data_verificar.Dia);
+        }
+        else if (end.Ano == data_verificar.Ano)
+        {
+            validation = (end.Mes >= data_verificar.Mes);
+            if (end.Mes == data_verificar.Mes)
+                validation = (end.Dia >= data_verificar.Dia);
+        }
 
     return validation;
 }
