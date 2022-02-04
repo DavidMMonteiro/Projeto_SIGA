@@ -74,7 +74,7 @@ void ImprimeTempo(Tempo);
 
 //---------Declaração Funções Gerais---------//
 
-//---------Funções Genéricas---------//
+//---------Funções Genéricas----------//
 
 int charParaInt(char);
 float calculoPercentagem(int, int);
