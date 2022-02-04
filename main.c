@@ -6,8 +6,8 @@
 
     OWNER INFO
     Class: 4515 Curso Tecnico Superior Profissional de Programacao de Sistemas de informacao
-    Student(s) number: 2211849
-    Creator(s): David Machado Monteiro
+    Student(s) number: 2211849, 2211875
+    Creator(s): David Machado Monteiro, Bruno Miguel Maia da Silva
 */
 #include <stdio.h>
 #include <stdlib.h>
