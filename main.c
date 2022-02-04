@@ -74,25 +74,34 @@ void ImprimeTempo(Tempo);
 
 //---------Declaração Funções Gerais---------//
 
-bool validacaoBinaria(char[]);
-char validacaoCharacter(char[], char[]);
+//---------Funções Genéricas---------//
+
+int charParaInt(char);
+float calculoPercentagem(int, int);
+void inicializarHora(Tempo *);
+
+//---------Funções Obtenção de inputs---------//
+
 void esperarEnter();
-const char *getfield(char *, int);
 void obterString(char[], char *);
 float obterFloat(char[]);
 int obterInt(char text[]);
-int charParaInt(char);
 void obterMayusculas(char[], char *);
 void obterData_Hora(Tempo *);
-float calculoPercentagem(int, int);
-int pedirTipoMovimento();
-int pedirTipoUtilizador();
-bool validarDataMovimento(Tempo, Tempo, Tempo);
-void inicializarHora(Tempo *);
 void obterAno(Tempo *, char[]);
 void obterMes(Tempo *, char[]);
 void obterDia(Tempo *, char[]);
 Tempo obterData(char[]);
+int pedirTipoMovimento();
+int pedirTipoUtilizador();
+
+//---------Funções Validação---------//
+
+bool validacaoBinaria(char[]);
+char validacaoCharacter(char[], char[]);
+bool validarDataMovimento(Tempo, Tempo, Tempo);
+bool validarDataInicialDataFinal(Tempo, Tempo);
+int obter_index_utilizador(Utilizador[], int);
 
 //---------Declaração Funções Especificas---------//
 
@@ -120,7 +129,7 @@ void exportFicheiroCSVUtilizadores(char[], Utilizador[], int, bool);
 void exportFicheiroCSVEscolas(char[], Escola[], int, bool);
 void exportFicheiroCSVTransacoes(char[], Transacao[], int, bool);
 
-//---------Funções Leitura de dados CSV---------//
+//---------Funções Procesamento de dados CSV---------//
 
 void guardarDadosUtilizador(char[], Utilizador *, int);
 void guardarDadosEscola(char[], Escola *, int);
@@ -128,15 +137,17 @@ void guardarDadosTransacao(char[], Transacao *, int);
 void guardarDadosData(char[], Tempo *);
 void guardarDadosHora(char[], Tempo *);
 
+//---------Funções Criação Registros---------//
+
 void crearUtilizador(Utilizador *, int, int *, Escola[], int);
 void crearEscola(Escola *, int *);
-void escolherTipoMovimento(char *);
-int obter_index_utilizador(Utilizador[], int);
 void crearMovimento(Utilizador *, Transacao *, int *);
+
+//---------Funções Estadísticas---------//
+
 void calculoTotalFaturacao(Utilizador[], Escola[], Transacao[], int, int, int);
 void calculoPercentagemMovimentos(Utilizador[], Escola[], Transacao[], int, int, int);
 void calculoTotalUtilizadorEntreDatas(Utilizador[], Escola[], Transacao[], int, int, int);
-bool validarDataInicialDataFinal(Tempo, Tempo);
 
 //---------------------------------------------//
 
@@ -660,9 +671,12 @@ void obterAno(Tempo *data, char texto[])
         system("cls");
         printf(texto);
         //
-        tmp_data.Ano = obterInt("Insira o ano:");
+        tmp_data.Ano = abs(obterInt("Insira o ano:"));
         // Validação dos dados
-        validator = (tmp_data.Ano > time.wYear);
+        validator = (tmp_data.Ano > time.wYear && tmp_data.Ano < 1900);
+        if(tmp_data.Ano < 1900) {
+            printf("Are you a time traveler?\nDon't think so");
+        }
         if (validator)
         {
             printf("Ano nao pode ser superior ao ano atual!");
@@ -694,12 +708,13 @@ void obterMes(Tempo *data, char texto[])
         //
         printf(texto);
         printf("Data: --/--/%d\n", data->Ano);
-        tmp_data.Mes = obterInt("Insira um mes:");
+        tmp_data.Mes = abs(obterInt("Insira um mes:"));
         // Validação dos dados
-        validator = ((tmp_data.Mes > time.wMonth && data->Ano == time.wYear) || tmp_data.Mes > 12);
+        validator = ((tmp_data.Mes > time.wMonth && data->Ano == time.wYear) || 
+        (tmp_data.Mes > 12 && tmp_data.Mes < 1));
         if (validator)
         {
-            printf("Insira um mes valido");
+            printf("Mes nao valido.");
             esperarEnter();
         }
     } while (validator);
@@ -728,12 +743,12 @@ void obterDia(Tempo *data, char texto[])
         //
         printf(texto);
         printf("Data: --/%d/%d\n", data->Mes, data->Ano);
-        tmp_data.Dia = obterInt("Insira um dia:");
+        tmp_data.Dia = abs(obterInt("Insira um dia:"));
         // Validação dos dados
-        validator = ((tmp_data.Dia > time.wDay && data->Mes == time.wMonth && data->Ano == time.wYear) || tmp_data.Dia > 30);
+        validator = ((tmp_data.Dia > time.wDay && data->Mes == time.wMonth && data->Ano == time.wYear) || (tmp_data.Dia > 30 && tmp_data.Dia < 1));
         if (validator)
         {
-            printf("Dia ao valido.");
+            printf("Dia Nao valido.");
             esperarEnter();
         }
     } while (validator);
@@ -880,9 +895,7 @@ void exportFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
             // Estruturação dos dados das structs numa string para inserir no ficheiro CSV
             for (index = 0; index < counter_utilizadores; index++)
                 fprintf(ficheiro, "%d;%d;%s;%d;%s;%s;%.2f\n",
-                        lista_utilizadores[index].ID, lista_utilizadores[index].ID_Escola, lista_utilizadores[index].Nome,
-                        lista_utilizadores[index].NIF, lista_utilizadores[index].Tipo, lista_utilizadores[index].Email,
-                        lista_utilizadores[index].Valor_Conta);
+                        lista_utilizadores[index].ID, lista_utilizadores[index].ID_Escola, lista_utilizadores[index].Nome, lista_utilizadores[index].NIF, lista_utilizadores[index].Tipo, lista_utilizadores[index].Email, lista_utilizadores[index].Valor_Conta);
             printf("\nDados exportados para %s", filePath);
         }
         else
@@ -1398,13 +1411,13 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int 
         // Atribui o nome inserido pelo utilizador
         obterString("Insira o seu nome utilizador: ", novo_utilizador.Nome);
         // Atribui o NIF inserido pelo utilizador
-        novo_utilizador.NIF = obterInt("Insira o seu NIF:");
+        novo_utilizador.NIF = abs(obterInt("Insira o seu NIF:"));
         // Atribui o tipo de utilizador inserido pelo utilizador
         strcpy(novo_utilizador.Tipo, TIPO_UTILIZADOR[pedirTipoUtilizador()]);
         // Atribui o email inserido pelo utilizador
         obterString("Insira o seu Email: ", novo_utilizador.Email);
         // Atribui o valor inicial na conta inserido pelo utilizador
-        novo_utilizador.Valor_Conta = obterFloat("Insira o seu valor inicial:");
+        novo_utilizador.Valor_Conta = abs(obterFloat("Insira o seu valor inicial:"));
         system("cls");
         // Mostra o dados o utilizador antes de guardar
         ImprimeUtilizador(novo_utilizador);
@@ -1498,7 +1511,7 @@ void crearMovimento(Utilizador *user, Transacao *movimento, int *contador_movime
         {
             do
             {
-                valor_movimento = obterFloat(texto);
+                valor_movimento = abs(obterFloat(texto));
                 valor_validator = valor_movimento > user->Valor_Conta;
                 if (valor_validator)
                 {
@@ -1572,7 +1585,6 @@ void calculoTotalFaturacao(Utilizador lista_utilizadores[], Escola lista_escolas
         valor_faturacao = 0;
         // Vai procesar os movimentos registados
         for (index_movimentos = 0; index_movimentos < contador_movimentos; index_movimentos++)
-        {
             // Vair procesar os utilizadores resgistados
             for (index_utilizador = 0; index_utilizador < contador_utilizadores; index_utilizador++)
             {
@@ -1580,7 +1592,6 @@ void calculoTotalFaturacao(Utilizador lista_utilizadores[], Escola lista_escolas
                 if (lista_utilizadores[index_utilizador].ID_Escola == lista_escolas[index_escola].ID && lista_movimentos[index_movimentos].ID_Utilizador == lista_utilizadores[index_utilizador].ID && !strcmp(lista_movimentos[index_movimentos].Tipo, TIPO_MOVIMENTO[0]))
                     valor_faturacao += lista_movimentos[index_movimentos].Valor;
             }
-        }
         // Mostra informação da escola
         printf("\nTotal faturado pela escola %s: %.2f euros", lista_escolas[index_escola].Nome, valor_faturacao);
     }
@@ -1607,10 +1618,8 @@ void calculoPercentagemMovimentos(Utilizador lista_utilizadores[], Escola lista_
         contador_carregamento = 0;
         // Vai procesar os movimentos registados
         for (index_movimentos = 0; index_movimentos < contador_movimentos; index_movimentos++)
-        {
             // Vair procesar os utilizadores resgistados
             for (index_utilizador = 0; index_utilizador < contador_utilizadores; index_utilizador++)
-            {
                 // Verifica a escola do utilizador, os moviemntos do utilizador e tipo de movimento
                 if (lista_utilizadores[index_utilizador].ID_Escola == lista_escolas[index_escola].ID && lista_movimentos[index_movimentos].ID_Utilizador == lista_utilizadores[index_utilizador].ID)
                 {
@@ -1620,8 +1629,6 @@ void calculoPercentagemMovimentos(Utilizador lista_utilizadores[], Escola lista_
                     else
                         contador_carregamento += 1;
                 }
-            }
-        }
         // Mostra informação da escola
         printf("\n\nPercentagem movimentos escola %s", lista_escolas[index_escola].Nome);
         printf("\n\tPercentagem pagamentos: %.2f %%", calculoPercentagem(contador_pagamento, contador_movimentos_escola));
@@ -1668,18 +1675,14 @@ void calculoTotalUtilizadorEntreDatas(Utilizador lista_utilizadores[], Escola li
 
     // Vair procesar os utilizadores resgistados
     for (index_utilizador = 0; index_utilizador < contador_utilizadores; index_utilizador++)
-    {
         if (!strcmp(lista_utilizadores[index_utilizador].Tipo, TIPO_UTILIZADOR[tipo_utilizador]))
             // Vai procesar os movimentos registados
             for (index_movimentos = 0; index_movimentos < contador_movimentos; index_movimentos++)
-            {
                 // Verifica a escola do utilizador, os moviemntos do utilizador e tipo de movimento
                 if (lista_movimentos[index_movimentos].ID_Utilizador == lista_utilizadores[index_utilizador].ID &&
                     !strcmp(lista_movimentos[index_movimentos].Tipo, TIPO_MOVIMENTO[tipo_movimento]) &&
                     validarDataMovimento(lista_movimentos[index_movimentos].Data_Hora, data_inicial, data_final))
                     valor_total += lista_movimentos[index_movimentos].Valor;
-            }
-    }
     printf("Valor total dos %s dos %s: %.2f euros", TIPO_MOVIMENTO[tipo_movimento], TIPO_UTILIZADOR[tipo_utilizador], valor_total);
     esperarEnter();
 }
@@ -1695,11 +1698,15 @@ bool validarDataInicialDataFinal(Tempo data_inicial, Tempo data_final)
     bool validation = (data_inicial.Ano <= data_final.Ano);
 
     if (validation)
+        // Caso os anos seixão iguais
         if (data_inicial.Ano == data_final.Ano)
         {
-            validation = (data_inicial.Mes < data_final.Mes);
+            // Verifica que o mes seixa menor ou igual
+            validation = (data_inicial.Mes <= data_final.Mes);
+            // Caso os meses seixão iguais
             if (data_inicial.Mes == data_final.Mes)
-                validation = (data_inicial.Dia < data_final.Dia);
+                // Verifica que o dia seixa menor ou igual
+                validation = (data_inicial.Dia <= data_final.Dia);
         }
 
     return validation;
