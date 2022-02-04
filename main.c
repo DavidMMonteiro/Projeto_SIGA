@@ -76,7 +76,7 @@ void ImprimeTempo(Tempo);
 
 bool validacaoBinaria(char[]);
 char validacaoCharacter(char[], char[]);
-void esperarEnter(void);
+void esperarEnter();
 const char *getfield(char *, int);
 void obterString(char[], char *);
 float obterFloat(char[]);
@@ -125,6 +125,8 @@ void exportFicheiroCSVTransacoes(char[], Transacao[], int, bool);
 void guardarDadosUtilizador(char[], Utilizador *, int);
 void guardarDadosEscola(char[], Escola *, int);
 void guardarDadosTransacao(char[], Transacao *, int);
+void guardarDadosData(char[], Tempo *);
+void guardarDadosHora(char[], Tempo *);
 
 void crearUtilizador(Utilizador *, int, int *, Escola[], int);
 void crearEscola(Escola *, int *);
@@ -152,15 +154,16 @@ int main()
     char caminhoBinUtilizadores[] = "files/Bin/utilizadores.Bin";
     char caminhoBinMovimentos[] = "files/Bin/movimentos.Bin";
 
+    // Dados
+    int counter_utilizadores = 0, counter_escolas = 0, counter_movimentos = 0;
+    Utilizador utilizadores[MAX_UTILIZADORES];
+    Escola escolas[MAX_ESCOLAS];
+    Transacao movimentos[MAX_MOVIMENTOS];
+
     // Variveis
     char resposta;
     bool resposta_rewrite;
     int index, index_novo_dado, index_utilizador;
-    int counter_utilizadores = 0, counter_escolas = 0, counter_movimentos = 0;
-    // Dados
-    Utilizador utilizadores[MAX_UTILIZADORES];
-    Escola escolas[MAX_ESCOLAS];
-    Transacao movimentos[MAX_MOVIMENTOS];
 
     system("cls");
     if (validacaoBinaria("Quere importar dados dos ficheiros ao sistema?"))
@@ -203,20 +206,27 @@ int main()
             break;
         case '2': // Ver as estadísticas do sistema
             system("cls");
-            switch (validacaoCharacter("Insira o tipo de dados que quere visualizar:\n1 - Total faturado por escola\n2 - Percentegam de transacoes por escola\n3 - Total de transacoes\nX - Sair", "123X"))
+            if (counter_movimentos <= 0)
             {
-            case '1': // Vai mostrar a faturação por escola
-                calculoTotalFaturacao(utilizadores, escolas, movimentos, counter_utilizadores, counter_escolas, counter_movimentos);
-                break;
-            case '2': // Vai mostrar a percentagem de movimentos por escola
-                calculoPercentagemMovimentos(utilizadores, escolas, movimentos, counter_utilizadores, counter_escolas, counter_movimentos);
-                break;
-            case '3': // Vai mostrar o total de movimentos, entre duas datas, em função do tipo de utilizador
-                calculoTotalUtilizadorEntreDatas(utilizadores, escolas, movimentos, counter_utilizadores, counter_escolas, counter_movimentos);
-                break;
-
-            default:
-                break;
+                printf("Sem transacoes no sistema");
+                esperarEnter();
+            }
+            else
+            {
+                switch (validacaoCharacter("Insira o tipo de dados que quere visualizar:\n1 - Total faturado por escola\n2 - Percentegam de transacoes por escola\n3 - Total de transacoes\nX - Sair", "123X"))
+                {
+                case '1': // Vai mostrar a faturação por escola
+                    calculoTotalFaturacao(utilizadores, escolas, movimentos, counter_utilizadores, counter_escolas, counter_movimentos);
+                    break;
+                case '2': // Vai mostrar a percentagem de movimentos por escola
+                    calculoPercentagemMovimentos(utilizadores, escolas, movimentos, counter_utilizadores, counter_escolas, counter_movimentos);
+                    break;
+                case '3': // Vai mostrar o total de movimentos, entre duas datas, em função do tipo de utilizador
+                    calculoTotalUtilizadorEntreDatas(utilizadores, escolas, movimentos, counter_utilizadores, counter_escolas, counter_movimentos);
+                    break;
+                default:
+                    break;
+                }
             }
             break;
         case '3': // Inserir um novo registo
@@ -463,7 +473,6 @@ char validacaoCharacter(char texto[], char valores_validos[])
 float obterFloat(char text[])
 {
     float valor;
-    system("cls");
     printf(text);
     fflush(stdin);
     scanf(" %f", &valor);
@@ -862,27 +871,28 @@ void importFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadore
 void exportFicheiroCSVUtilizadores(char filePath[], Utilizador lista_utilizadores[], int counter_utilizadores, bool rescreber)
 {
     // Vai validar se existem informação a ser guardada
-    if (counter_utilizadores <= 0)
-        return;
-    FILE *ficheiro = fopen(filePath, rescreber ? "w" : "a");
-    int index;
-    if (ficheiro)
+    if (counter_utilizadores > 0)
     {
-        // Estruturação dos dados das structs numa string para inserir no ficheiro CSV
-        for (index = 0; index < counter_utilizadores; index++)
-            fprintf(ficheiro, "%d;%d;%s;%d;%s;%s;%.2f\n",
-                    lista_utilizadores[index].ID, lista_utilizadores[index].ID_Escola, lista_utilizadores[index].Nome,
-                    lista_utilizadores[index].NIF, lista_utilizadores[index].Tipo, lista_utilizadores[index].Email,
-                    lista_utilizadores[index].Valor_Conta);
-        printf("\nDados exportados para %s", filePath);
+        FILE *ficheiro = fopen(filePath, rescreber ? "w" : "a");
+        int index;
+        if (ficheiro)
+        {
+            // Estruturação dos dados das structs numa string para inserir no ficheiro CSV
+            for (index = 0; index < counter_utilizadores; index++)
+                fprintf(ficheiro, "%d;%d;%s;%d;%s;%s;%.2f\n",
+                        lista_utilizadores[index].ID, lista_utilizadores[index].ID_Escola, lista_utilizadores[index].Nome,
+                        lista_utilizadores[index].NIF, lista_utilizadores[index].Tipo, lista_utilizadores[index].Email,
+                        lista_utilizadores[index].Valor_Conta);
+            printf("\nDados exportados para %s", filePath);
+        }
+        else
+        {
+            // Caso a abertura do ficheiro tiver algum erro
+            printf("\nError opening file: %s\n", filePath);
+            perror("Error");
+        }
+        fclose(ficheiro);
     }
-    else
-    {
-        // Caso a abertura do ficheiro tiver algum erro
-        printf("\nError opening file: %s\n", filePath);
-        perror("Error");
-    }
-    fclose(ficheiro);
 }
 
 /* Importa os dados dos Utilizadores para o programa apartir de ficheiros Bin
@@ -923,24 +933,25 @@ void importFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadore
 void exportFicheiroBinUtilizadores(char filePath[], Utilizador lista_utilizadores[], int contador_utilizadores, bool rescreber)
 {
     // Vai validar se existem informação a ser guardada
-    if (contador_utilizadores <= 0)
-        return;
-    // Seleção de tipo de abertura de ficheiro feito pelo o utilizador
-    // Ira permitir rescrever ou acrescentar os dados do ficheiro
-    FILE *ficheiro = fopen(filePath, rescreber ? "wb" : "ab");
-    if (ficheiro)
+    if (contador_utilizadores > 0)
     {
-        // Inserção dos dados no ficheiro
-        fwrite(lista_utilizadores, sizeof(Utilizador), contador_utilizadores, ficheiro);
-        printf("\nDados guardados.");
+        // Seleção de tipo de abertura de ficheiro feito pelo o utilizador
+        // Ira permitir rescrever ou acrescentar os dados do ficheiro
+        FILE *ficheiro = fopen(filePath, rescreber ? "wb" : "ab");
+        if (ficheiro)
+        {
+            // Inserção dos dados no ficheiro
+            fwrite(lista_utilizadores, sizeof(Utilizador), contador_utilizadores, ficheiro);
+            printf("\nDados guardados.");
+        }
+        else
+        {
+            // Caso a abertura do ficheiro de erro
+            printf("\nError opening file: %s\n", filePath);
+            perror("Error");
+        }
+        fclose(ficheiro);
     }
-    else
-    {
-        // Caso a abertura do ficheiro de erro
-        printf("\nError opening file: %s\n", filePath);
-        perror("Error");
-    }
-    fclose(ficheiro);
 }
 
 /* Importa os dados das Escolas para o programa
@@ -993,26 +1004,27 @@ void importFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int *cont
 void exportFicheiroCSVEscolas(char filePath[], Escola lista_escolas[], int counter_escolas, bool rescreber)
 {
     // Vai validar se existem informação a ser guardada
-    if (counter_escolas <= 0)
-        return;
-    FILE *ficheiro = fopen(filePath, rescreber ? "w" : "a");
-    int index;
-    if (ficheiro)
+    if (counter_escolas > 0)
     {
-        // Estruturação dos dados das structs numa string para inserir no ficheiro CSV
-        for (index = 0; index < counter_escolas; index++)
-            fprintf(ficheiro, "%d;%s;%s;%s;%s",
-                    lista_escolas[index].ID, lista_escolas[index].Nome, lista_escolas[index].Abreviatura,
-                    lista_escolas[index].Campus, lista_escolas[index].Localidade);
-        printf("\nDados exportados para %s", filePath);
+        FILE *ficheiro = fopen(filePath, rescreber ? "w" : "a");
+        int index;
+        if (ficheiro)
+        {
+            // Estruturação dos dados das structs numa string para inserir no ficheiro CSV
+            for (index = 0; index < counter_escolas; index++)
+                fprintf(ficheiro, "%d;%s;%s;%s;%s",
+                        lista_escolas[index].ID, lista_escolas[index].Nome, lista_escolas[index].Abreviatura,
+                        lista_escolas[index].Campus, lista_escolas[index].Localidade);
+            printf("\nDados exportados para %s", filePath);
+        }
+        else
+        {
+            // Caso a abertura do ficheiro de erro
+            printf("\nError opening file: %s\n", filePath);
+            perror("Error");
+        }
+        fclose(ficheiro);
     }
-    else
-    {
-        // Caso a abertura do ficheiro de erro
-        printf("\nError opening file: %s\n", filePath);
-        perror("Error");
-    }
-    fclose(ficheiro);
 }
 
 /* Importa os dados das Escolas para o programa apartir de ficheiros Bin
@@ -1053,24 +1065,25 @@ void importFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int *cont
 void exportFicheiroBinEscolas(char filePath[], Escola lista_escolas[], int contador_escolas, bool rescreber)
 {
     // Vai validar se existem informação a ser guardada
-    if (contador_escolas <= 0)
-        return;
-    // Seleção de tipo de abertura de ficheiro feito pelo o utilizador
-    // Ira permitir rescrever ou acrescentar os dados do ficheiro
-    FILE *ficheiro = fopen(filePath, rescreber ? "wb" : "ab");
-    if (ficheiro)
+    if (contador_escolas > 0)
     {
-        // Inserção dos dados no ficheiro
-        fwrite(lista_escolas, sizeof(Escola), contador_escolas, ficheiro);
-        printf("\nDados guardados.");
+        // Seleção de tipo de abertura de ficheiro feito pelo o utilizador
+        // Ira permitir rescrever ou acrescentar os dados do ficheiro
+        FILE *ficheiro = fopen(filePath, rescreber ? "wb" : "ab");
+        if (ficheiro)
+        {
+            // Inserção dos dados no ficheiro
+            fwrite(lista_escolas, sizeof(Escola), contador_escolas, ficheiro);
+            printf("\nDados guardados.");
+        }
+        else
+        {
+            // Caso a abertura do ficheiro de erro
+            printf("\nError opening file: %s\n", filePath);
+            perror("Error");
+        }
+        fclose(ficheiro);
     }
-    else
-    {
-        // Caso a abertura do ficheiro de erro
-        printf("\nError opening file: %s\n", filePath);
-        perror("Error");
-    }
-    fclose(ficheiro);
 }
 
 /* Importa os dados das Transacoes para o programa apartir de ficheiros CSV
@@ -1124,25 +1137,26 @@ void importFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], 
 void exportFicheiroCSVTransacoes(char filePath[], Transacao lista_movimentos[], int counter_movimentos, bool rescreber)
 {
     // Vai validar se existem informação a ser guardada
-    if (counter_movimentos <= 0)
-        return;
-    FILE *ficheiro = fopen(filePath, rescreber ? "w" : "a");
-    int index;
-    if (ficheiro)
+    if (counter_movimentos > 0)
     {
-        // Estruturação dos dados das structs numa string para inserir no ficheiro CSV
-        for (index = 0; index < counter_movimentos; index++)
-            fprintf(ficheiro, "%d;%d;%s;%.2f;%d/%d/%d;%d:%d:%d\n",
-                    lista_movimentos[index].ID, lista_movimentos[index].ID_Utilizador, lista_movimentos[index].Tipo, lista_movimentos[index].Valor, lista_movimentos[index].Data_Hora.Dia, lista_movimentos[index].Data_Hora.Mes, lista_movimentos[index].Data_Hora.Ano, lista_movimentos[index].Data_Hora.Hora, lista_movimentos[index].Data_Hora.Minuto, lista_movimentos[index].Data_Hora.Segundo);
-        printf("\nDados exportados para %s", filePath);
+        FILE *ficheiro = fopen(filePath, rescreber ? "w" : "a");
+        int index;
+        if (ficheiro)
+        {
+            // Estruturação dos dados das structs numa string para inserir no ficheiro CSV
+            for (index = 0; index < counter_movimentos; index++)
+                fprintf(ficheiro, "%d;%d;%s;%.2f;%d/%d/%d;%d:%d:%d\n",
+                        lista_movimentos[index].ID, lista_movimentos[index].ID_Utilizador, lista_movimentos[index].Tipo, lista_movimentos[index].Valor, lista_movimentos[index].Data_Hora.Dia, lista_movimentos[index].Data_Hora.Mes, lista_movimentos[index].Data_Hora.Ano, lista_movimentos[index].Data_Hora.Hora, lista_movimentos[index].Data_Hora.Minuto, lista_movimentos[index].Data_Hora.Segundo);
+            printf("\nDados exportados para %s", filePath);
+        }
+        else
+        {
+            // Caso a abertura do ficheiro de erro
+            printf("\nError opening file: %s\n", filePath);
+            perror("Error");
+        }
+        fclose(ficheiro);
     }
-    else
-    {
-        // Caso a abertura do ficheiro de erro
-        printf("\nError opening file: %s\n", filePath);
-        perror("Error");
-    }
-    fclose(ficheiro);
 }
 
 /* Importa os dados das Transacoes para o programa apartir de ficheiros Bin
@@ -1184,25 +1198,26 @@ Parametros:
 void exportFicheiroBinTransacoes(char filePath[], Transacao lista_movimentos[], int contador_movimentos, bool rescreber)
 {
     // Vai validar se existem informação a ser guardada
-    if (contador_movimentos <= 0)
-        return;
-    // Seleção de tipo de abertura de ficheiro feito pelo o utilizador
-    // Ira permitir rescrever ou acrescentar os dados do ficheiro
-    FILE *ficheiro = fopen(filePath, rescreber ? "wb" : "ab");
-    if (ficheiro)
+    if (contador_movimentos > 0)
     {
-        // Inserção dos dados no ficheiro
-        fwrite(lista_movimentos, sizeof(Transacao), contador_movimentos, ficheiro);
-        printf("\nDados guardados.");
+        // Seleção de tipo de abertura de ficheiro feito pelo o utilizador
+        // Ira permitir rescrever ou acrescentar os dados do ficheiro
+        FILE *ficheiro = fopen(filePath, rescreber ? "wb" : "ab");
+        if (ficheiro)
+        {
+            // Inserção dos dados no ficheiro
+            fwrite(lista_movimentos, sizeof(Transacao), contador_movimentos, ficheiro);
+            printf("\nDados guardados.");
+        }
+        else
+        {
+            // Caso a abertura do ficheiro de erro
+            printf("\nError opening file: %s\n", filePath);
+            perror("Error");
+        }
+        // Fechar ficheiro
+        fclose(ficheiro);
     }
-    else
-    {
-        // Caso a abertura do ficheiro de erro
-        printf("\nError opening file: %s\n", filePath);
-        perror("Error");
-    }
-    // Fechar ficheiro
-    fclose(ficheiro);
 }
 
 /* Insire os dados do novo utilizador, obtidos dos CSV, na struct pasada por referencia
@@ -1293,49 +1308,71 @@ void guardarDadosTransacao(char novo_dado[], Transacao *dados_antigos, int colun
         dados_antigos->Valor = strtof(novo_dado, NULL);
         break;
     case 4: // Save Data do movimento
-        // Divide a string da data
-        dados_data = strtok(novo_dado, "/");
-        // loop pelos dados da data
-        while (dados_data)
-        {
-            switch (index_data)
-            {
-            case 0:
-                dados_antigos->Data_Hora.Dia = atoi(dados_data);
-                break;
-            case 1:
-                dados_antigos->Data_Hora.Mes = atoi(dados_data);
-                break;
-            case 2:
-                dados_antigos->Data_Hora.Ano = atoi(dados_data);
-                break;
-            }
-            index_data++;
-            dados_data = strtok(NULL, "/");
-        }
+        guardarDadosData(novo_dado, &dados_antigos->Data_Hora);
         break;
     case 5: // Save Tempo do movimento
-        // Divide a string do tempo
-        dados_data = strtok(novo_dado, ":");
-        // loop pelos dados do tempo
-        while (dados_data)
-        {
-            switch (index_data)
-            {
-            case 0:
-                dados_antigos->Data_Hora.Hora = atoi(dados_data);
-                break;
-            case 1:
-                dados_antigos->Data_Hora.Minuto = atoi(dados_data);
-                break;
-            case 2:
-                dados_antigos->Data_Hora.Segundo = atoi(dados_data);
-                break;
-            }
-            index_data++;
-            dados_data = strtok(NULL, ":");
-        }
+        guardarDadosHora(novo_dado, &dados_antigos->Data_Hora);
         break;
+    }
+}
+
+/* Procesa a data inserida e guarda na struct Tempo pasada por referencia
+ Parametros
+ - Data em string
+ - Struct Tempo onde guardar informação*/
+void guardarDadosData(char nova_data[], Tempo *data_antiga)
+{
+    int index = 0;
+    char *dados_data;
+    // Divide a string da data
+    dados_data = strtok(nova_data, "/");
+    // loop pelos dados da data
+    while (dados_data)
+    {
+        switch (index)
+        {
+        case 0:
+            data_antiga->Dia = atoi(dados_data);
+            break;
+        case 1:
+            data_antiga->Mes = atoi(dados_data);
+            break;
+        case 2:
+            data_antiga->Ano = atoi(dados_data);
+            break;
+        }
+        index++;
+        dados_data = strtok(NULL, "/");
+    }
+}
+
+/* Procesa a hora inserida e guarda na struct Tempo pasada por referencia
+ Parametros
+ - Hora em string
+ - Struct Tempo onde guardar informação*/
+void guardarDadosHora(char nova_hora[], Tempo *hora_antiga)
+{
+    int index = 0;
+    char *dados_hora;
+    // Divide a string da hora
+    dados_hora = strtok(nova_hora, ":");
+    // loop pelos dados da hora
+    while (dados_hora)
+    {
+        switch (index)
+        {
+        case 0:
+            hora_antiga->Hora = atoi(dados_hora);
+            break;
+        case 1:
+            hora_antiga->Minuto = atoi(dados_hora);
+            break;
+        case 2:
+            hora_antiga->Segundo = atoi(dados_hora);
+            break;
+        }
+        index++;
+        dados_hora = strtok(NULL, ":");
     }
 }
 
@@ -1643,7 +1680,7 @@ void calculoTotalUtilizadorEntreDatas(Utilizador lista_utilizadores[], Escola li
                     valor_total += lista_movimentos[index_movimentos].Valor;
             }
     }
-    printf("Valor total dos %s dos %s: %.2f", TIPO_MOVIMENTO[tipo_movimento], TIPO_UTILIZADOR[tipo_utilizador], valor_total);
+    printf("Valor total dos %s dos %s: %.2f euros", TIPO_MOVIMENTO[tipo_movimento], TIPO_UTILIZADOR[tipo_utilizador], valor_total);
     esperarEnter();
 }
 
