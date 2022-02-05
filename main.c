@@ -101,6 +101,7 @@ bool validacaoBinaria(char[]);
 char validacaoCharacter(char[], char[]);
 bool validarDataMovimento(Tempo, Tempo, Tempo);
 bool validarDataInicialDataFinal(Tempo, Tempo);
+bool validacaoMail(char []);
 int obter_index_utilizador(Utilizador[], int);
 
 //---------Declaração Funções Especificas---------//
@@ -478,6 +479,22 @@ char validacaoCharacter(char texto[], char valores_validos[])
         resposta = toupper(resposta);
     } while (!strchr(valores_validos, resposta));
     return resposta;
+}
+
+/* Validacao de mail
+ Parametros:
+ - String*/
+bool validacaoMail(char mail[]){
+    bool validacao = strchr(mail,'@');
+    if(!validacao){
+        printf("Mail nao valido.");
+        esperarEnter();
+    }
+    return validacao;
+}
+
+bool validacaoNIF(int nif){
+
 }
 
 // Obtem um valor numerico float
@@ -1400,7 +1417,7 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int 
 {
     // Faz uma copia do utilizador pasado por referencia
     Utilizador novo_utilizador = *utilizador_actual;
-    char resposta;
+    char tmp_mail[255], resposta;
     system("cls");
     do
     {
@@ -1415,7 +1432,10 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int 
         // Atribui o tipo de utilizador inserido pelo utilizador
         strcpy(novo_utilizador.Tipo, TIPO_UTILIZADOR[pedirTipoUtilizador()]);
         // Atribui o email inserido pelo utilizador
-        obterString("Insira o seu Email: ", novo_utilizador.Email);
+        do{
+            obterString("Insira o seu Email: ", &tmp_mail);
+        } while(!validacaoMail(tmp_mail));
+        strcpy(novo_utilizador.Email, tmp_mail);
         // Atribui o valor inicial na conta inserido pelo utilizador
         novo_utilizador.Valor_Conta = abs(obterFloat("Insira o seu valor inicial:"));
         system("cls");
