@@ -101,8 +101,9 @@ bool validacaoBinaria(char[]);
 char validacaoCharacter(char[], char[]);
 bool validarDataMovimento(Tempo, Tempo, Tempo);
 bool validarDataInicialDataFinal(Tempo, Tempo);
-bool validacaoMail(char []);
+bool validacaoMail(char[]);
 int obter_index_utilizador(Utilizador[], int);
+int obter_index_escola(Escola[], int);
 
 //---------Declaração Funções Especificas---------//
 
@@ -175,7 +176,7 @@ int main()
     // Variveis
     char resposta;
     bool resposta_rewrite;
-    int index, index_novo_dado, index_utilizador;
+    int index, index_novo_dado, index_utilizador, index_escola;
 
     system("cls");
     if (validacaoBinaria("Quere importar dados dos ficheiros ao sistema?"))
@@ -201,11 +202,49 @@ int main()
             switch (validacaoCharacter("U - Dados Utilizadores\nE - Dados Escolas\nM - Movimentos\nX - Sair", "UEMX"))
             {
             case 'U': // Mostrar utilizadores
-                ver_utilizadores(utilizadores, counter_utilizadores);
+                system("cls");
+                switch (validacaoCharacter("1 - Procurar Utilizador\n2 - Ver Todo Utilizadores\nX - Sair", "12X"))
+                {
+                case '1':
+                    index_utilizador = obter_index_utilizador(utilizadores, counter_utilizadores);
+                    if (index_utilizador >= 0)
+                    {
+                        ImprimeUtilizador(utilizadores[index_utilizador]);
+                    }
+                    else
+                    {
+                        printf("Utilizador nao encontrado.");
+                    }
+                    break;
+                case '2':
+                    ver_utilizadores(utilizadores, counter_utilizadores);
+                    break;
+                default:
+                    break;
+                }
                 esperarEnter();
                 break;
             case 'E': // Mostrar escolas
-                ver_escolas(escolas, counter_escolas);
+                system("cls");
+                switch (validacaoCharacter("1 - Procurar Escola\n2 - Ver Todas Escolas\nX - Sair", "12X"))
+                {
+                case '1':
+                    index_escola = obter_index_escola(escolas, counter_escolas);
+                    if (index_escola >= 0)
+                    {
+                        ImprimeEscola(escolas[index_escola]);
+                    }
+                    else
+                    {
+                        printf("Escola nao encontrada.");
+                    }
+                    break;
+                case '2':
+                    ver_escolas(escolas, counter_escolas);
+                    break;
+                default:
+                    break;
+                }
                 esperarEnter();
                 break;
             case 'M': // Mostrar transações
@@ -484,17 +523,15 @@ char validacaoCharacter(char texto[], char valores_validos[])
 /* Validacao de mail
  Parametros:
  - String*/
-bool validacaoMail(char mail[]){
-    bool validacao = strchr(mail,'@');
-    if(!validacao){
+bool validacaoMail(char mail[])
+{
+    bool validacao = strchr(mail, '@');
+    if (!validacao)
+    {
         printf("Mail nao valido.");
         esperarEnter();
     }
     return validacao;
-}
-
-bool validacaoNIF(int nif){
-
 }
 
 // Obtem um valor numerico float
@@ -691,7 +728,8 @@ void obterAno(Tempo *data, char texto[])
         tmp_data.Ano = abs(obterInt("Insira o ano:"));
         // Validação dos dados
         validator = (tmp_data.Ano > time.wYear && tmp_data.Ano < 1900);
-        if(tmp_data.Ano < 1900) {
+        if (tmp_data.Ano < 1900)
+        {
             printf("Are you a time traveler?\nDon't think so");
         }
         if (validator)
@@ -727,8 +765,8 @@ void obterMes(Tempo *data, char texto[])
         printf("Data: --/--/%d\n", data->Ano);
         tmp_data.Mes = abs(obterInt("Insira um mes:"));
         // Validação dos dados
-        validator = ((tmp_data.Mes > time.wMonth && data->Ano == time.wYear) || 
-        (tmp_data.Mes > 12 && tmp_data.Mes < 1));
+        validator = ((tmp_data.Mes > time.wMonth && data->Ano == time.wYear) ||
+                     (tmp_data.Mes > 12 && tmp_data.Mes < 1));
         if (validator)
         {
             printf("Mes nao valido.");
@@ -806,8 +844,6 @@ Tempo obterData(char texto[])
 }
 
 // TODO Validação de NIF
-
-// TODO Validação de Mail
 
 // TODO Fazer ID's dinâmicas
 
@@ -1432,9 +1468,10 @@ void crearUtilizador(Utilizador *utilizador_actual, int id_novo_utilizador, int 
         // Atribui o tipo de utilizador inserido pelo utilizador
         strcpy(novo_utilizador.Tipo, TIPO_UTILIZADOR[pedirTipoUtilizador()]);
         // Atribui o email inserido pelo utilizador
-        do{
+        do
+        {
             obterString("Insira o seu Email: ", &tmp_mail);
-        } while(!validacaoMail(tmp_mail));
+        } while (!validacaoMail(tmp_mail));
         strcpy(novo_utilizador.Email, tmp_mail);
         // Atribui o valor inicial na conta inserido pelo utilizador
         novo_utilizador.Valor_Conta = abs(obterFloat("Insira o seu valor inicial:"));
@@ -1575,7 +1612,7 @@ void crearMovimento(Utilizador *user, Transacao *movimento, int *contador_movime
 int obter_index_utilizador(Utilizador lista_utilizadores[], int contador_utilizadores)
 {
     int index = 0, index_utilizador = -1;
-    int user_numb = obterInt("Insira o numero do utilizador:");
+    int user_numb = obterInt("Insira o ID do utilizador:");
     do
     {
         if (user_numb == lista_utilizadores[index].ID)
@@ -1584,6 +1621,24 @@ int obter_index_utilizador(Utilizador lista_utilizadores[], int contador_utiliza
     } while (index < contador_utilizadores && index_utilizador == -1);
 
     return index_utilizador;
+}
+
+/* Função obter index escola
+ Parametros:
+ - Lista de escolas
+ - Contador de escolas*/
+int obter_index_escola(Escola lista_escolas[], int contador_escolas)
+{
+    int index = 0, index_escola = -1;
+    int escola_id = obterInt("Insira o ID da escola:");
+    do
+    {
+        if (escola_id == lista_escolas[index].ID)
+            index_escola = index;
+        index++;
+    } while (index < contador_escolas && index_escola == -1);
+
+    return index_escola;
 }
 
 /* Função total de faturação por escola
